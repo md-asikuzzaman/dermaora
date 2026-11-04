@@ -2,8 +2,9 @@ import { Render } from "@puckeditor/core";
 import { notFound } from "next/navigation";
 
 import { config } from "@/components/puck/config";
+import { getPublishedPageBySlug } from "@/services/page.service";
 import { Suspense } from "react";
-import { PageResponse } from "@/types/puck.type";
+import { auth } from "@/lib/auth";
 
 export default async function Home() {
   return (
@@ -14,19 +15,17 @@ export default async function Home() {
 }
 
 const HomePageRenderer = async () => {
-  const response = await fetch(`${process.env.APP_URL}/api/pages?slug=home`, {
-    cache: "no-store",
-  });
+  const page = await getPublishedPageBySlug("home");
 
-  if (response.status === 404) {
+  const session = await auth();
+
+  // session?.user.role;
+
+  console.log(session, { s: session?.user.role });
+
+  if (!page) {
     notFound();
   }
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch homepage");
-  }
-
-  const result: PageResponse = await response.json();
-
-  return <Render config={config} data={result.data.content} />;
+  return <Render config={config} data={page.content} />;
 };

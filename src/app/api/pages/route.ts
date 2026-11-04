@@ -82,12 +82,37 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const slug = searchParams.get("slug");
+
+    // Fetch single page by slug
+    if (slug) {
+      const page = await prisma.page.findUnique({
+        where: { slug: slug.trim().toLowerCase() },
+      });
+
+      if (!page) {
+        return NextResponse.json(
+          { success: false, message: "Page not found" },
+          { status: 404 },
+        );
+      }
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Page fetched successfully",
+          data: page,
+        },
+        { status: 200 },
+      );
+    }
+
+    // Fetch all pages
     const pages = await prisma.page.findMany({
-      orderBy: {
-        updatedAt: "desc",
-      },
+      orderBy: { updatedAt: "desc" },
     });
 
     return NextResponse.json(
@@ -102,10 +127,7 @@ export async function GET() {
     console.error("Pages fetch error:", error);
 
     return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to fetch pages",
-      },
+      { success: false, message: "Failed to fetch pages" },
       { status: 500 },
     );
   }

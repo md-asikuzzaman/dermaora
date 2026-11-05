@@ -1,11 +1,20 @@
-import React from "react";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Metadata } from "next";
 
-interface Props {
-  readonly children: React.ReactNode;
-}
-
-const Layout = async ({ children }: Props) => {
-  return <div>{children}</div>;
+export const metadata: Metadata = {
+  title: "Admin Panel",
+  description: "Admin panel for managing the application",
 };
 
-export default Layout;
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <AdminSidebar />
+      <main>
+        <SidebarTrigger />
+        {children}
+      </main>
+    </SidebarProvider>
+  );
+}

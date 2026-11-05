@@ -27,6 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
 
 function GoogleIcon() {
   return (
@@ -57,6 +58,8 @@ export default function SignUpForm() {
   const [error, setError] = useState("");
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+  const router = useRouter();
+
   const form = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -71,7 +74,6 @@ export default function SignUpForm() {
     setError("");
 
     try {
-      // Replace this endpoint with your actual registration API.
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
@@ -91,15 +93,14 @@ export default function SignUpForm() {
         email: values.email,
         password: values.password,
         redirect: false,
-        redirectTo: "/",
       });
 
-      if (result?.error) {
+      if (!result || result?.error) {
         setError("Account created. Please sign in to continue.");
         return;
       }
 
-      //   window.location.href = result?.url ?? "/";
+      router.replace("/signin");
     } catch {
       setError("Something went wrong. Please try again.");
     }

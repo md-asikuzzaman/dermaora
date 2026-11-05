@@ -1,6 +1,3 @@
-import { Plus } from "lucide-react";
-import Link from "next/link";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -12,10 +9,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getPages } from "@/services/page.service";
-import { Suspense } from "react";
 
-export default async function Pages() {
+import { getPages } from "@/services/page.service";
+
+import { Suspense } from "react";
+import Link from "next/link";
+import { CreatePageDialog } from "./_components/create-page-dialog";
+import { PageActions } from "./_components/page-actions";
+
+export default function Pages() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <PageRenderer />
@@ -23,7 +25,7 @@ export default async function Pages() {
   );
 }
 
-const PageRenderer = async () => {
+async function PageRenderer() {
   const pages = await getPages();
 
   return (
@@ -36,10 +38,7 @@ const PageRenderer = async () => {
           </p>
         </div>
 
-        <Button render={<Link href="/admin/pages/new" />}>
-          <Plus className="size-4" />
-          Create Page
-        </Button>
+        <CreatePageDialog />
       </div>
 
       <div className="rounded-md border">
@@ -88,13 +87,14 @@ const PageRenderer = async () => {
                   </TableCell>
 
                   <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      render={<Link href={`/admin/pages/${page.id}`} />}
-                    >
-                      Edit
-                    </Button>
+                    <PageActions
+                      page={{
+                        id: page.id,
+                        title: page.title,
+                        slug: page.slug,
+                        status: page.status,
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
               ))
@@ -104,4 +104,4 @@ const PageRenderer = async () => {
       </div>
     </div>
   );
-};
+}

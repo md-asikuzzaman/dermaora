@@ -39,7 +39,9 @@ export default function PageEditor({ pageId }: EditorProps) {
     queryKey: ["page", pageId],
 
     queryFn: async (): Promise<Page> => {
-      const response = await fetch(`/api/pages/${pageId}`);
+      const response = await fetch(`/api/pages/${pageId}`, {
+        cache: "no-store",
+      });
 
       const result: ApiResponse<Page> = await response.json();
 
@@ -51,6 +53,8 @@ export default function PageEditor({ pageId }: EditorProps) {
     },
 
     enabled: Boolean(pageId),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // Save Puck content

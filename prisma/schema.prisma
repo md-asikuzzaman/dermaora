@@ -48,7 +48,6 @@ enum PageStatus {
   PUBLISHED
 }
 
-
 // Authentication model for users
 enum Role {
   USER
@@ -64,11 +63,11 @@ model User {
   password      String?
   role          Role      @default(USER)
 
-  accounts      Account[]
-  sessions      Session[]
+  accounts Account[]
+  sessions Session[]
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Account {
@@ -106,4 +105,70 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Brand {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String  @unique
+  slug        String  @unique
+  description String?
+  logo        String?
+  website     String?
+  isActive    Boolean @default(true)
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String  @unique
+  description String?
+  image       String?
+  isActive    Boolean @default(true)
+
+  parentId String?    @db.ObjectId
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Category[] @relation("CategoryHierarchy")
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id               String  @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  slug             String  @unique
+  description      String?
+  shortDescription String?
+
+  sku       String @unique
+  price     Float
+  salePrice Float?
+  stock     Int    @default(0)
+
+  images    String[] @default([])
+  thumbnail String?
+
+  isFeatured Boolean @default(false)
+  isActive   Boolean @default(true)
+
+  brandId String @db.ObjectId
+  brand   Brand  @relation(fields: [brandId], references: [id])
+
+  categoryId String   @db.ObjectId
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([brandId])
+  @@index([categoryId])
+  @@index([isActive, isFeatured])
+  @@index([price])
 }

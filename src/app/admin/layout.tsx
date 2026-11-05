@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <AdminSidebar />
       <main className="w-full">
-        <SidebarTrigger />
+        {/* <SidebarTrigger /> */}
         <div className="p-2 md:p-4">{children}</div>
       </main>
     </SidebarProvider>

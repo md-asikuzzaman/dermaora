@@ -1,10 +1,10 @@
 import "server-only";
 
-import { PageResponse } from "@/types/puck.type";
+import { Page, PageResponse } from "@/types/puck.type";
 
 export async function getPublishedPageBySlug(
   slug: string,
-): Promise<PageResponse["data"] | null> {
+): Promise<Page | null> {
   const baseUrl = process.env.APP_URL;
 
   if (!baseUrl) {
@@ -27,10 +27,34 @@ export async function getPublishedPageBySlug(
     throw new Error("Failed to fetch page");
   }
 
-  const result: PageResponse = await response.json();
+  const result: PageResponse<Page> = await response.json();
 
   if (!result.success || !result.data) {
     throw new Error("Invalid page response");
+  }
+
+  return result.data;
+}
+
+export async function getPages(): Promise<Page[]> {
+  const baseUrl = process.env.APP_URL;
+
+  if (!baseUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+
+  const response = await fetch(`${baseUrl}/api/pages`, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch pages");
+  }
+
+  const result: PageResponse<Page[]> = await response.json();
+
+  if (!result.success) {
+    throw new Error(result.message || "Failed to fetch pages");
   }
 
   return result.data;

@@ -17,12 +17,6 @@ export default async function Home() {
 const HomePageRenderer = async () => {
   const page = await getPublishedPageBySlug("home");
 
-  const session = await auth();
-
-  // session?.user.role;
-
-  console.log(session, { s: session?.user.role });
-
   if (!page) {
     notFound();
   }

@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { createBrandSchema } from "@/schema/brand.schema";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -25,43 +26,33 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    // const session = await auth();
-
-    // if (session?.user?.role !== "ADMIN") {
-    //   return NextResponse.json(
-    //     { success: false, message: "Unauthorized" },
-    //     { status: 401 },
-    //   );
-    // }
+    const unauthorized = await requireAdmin();
+    if (unauthorized) return unauthorized;
 
     const body = await request.json();
-    const { name, slug, description, logo, website } = body;
 
-    if (
-      typeof name !== "string" ||
-      !name.trim() ||
-      typeof slug !== "string" ||
-      !slug.trim()
-    ) {
+    const validation = createBrandSchema.safeParse(body);
+
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, message: "Name and slug are required" },
+        {
+          success: false,
+          message: validation.error.issues[0].message,
+          errors: validation.error.flatten().fieldErrors,
+        },
         { status: 400 },
       );
     }
 
-    const normalizedSlug = slug
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
+    const { name, slug, description, logo, website } = validation.data;
 
     const brand = await prisma.brand.create({
       data: {
-        name: name.trim(),
-        slug: normalizedSlug,
-        description: description?.trim() || null,
-        logo: logo?.trim() || null,
-        website: website?.trim() || null,
+        name,
+        slug,
+        description: description || null,
+        logo: logo || null,
+        website: website || null,
       },
     });
 

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isValidObjectId } from "@/lib/isObjectId";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { updateCategorySchema } from "@/schema/category.schema";
 
 type Context = {
   params: Promise<{ id: string }>;
@@ -50,14 +52,8 @@ export async function GET(_request: NextRequest, { params }: Context) {
 
 export async function PATCH(request: NextRequest, { params }: Context) {
   try {
-    const session = await auth();
-
-    if (session?.user?.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 },
-      );
-    }
+    // const unauthorized = await requireAdmin();
+    // if (unauthorized) return unauthorized;
 
     const { id } = await params;
 
@@ -69,95 +65,53 @@ export async function PATCH(request: NextRequest, { params }: Context) {
     }
 
     const body = await request.json();
-    const { name, slug, description, image, parentId, isActive } = body;
 
-    const data: {
-      name?: string;
-      slug?: string;
-      description?: string | null;
-      image?: string | null;
-      parentId?: string | null;
-      isActive?: boolean;
-    } = {};
+    const validation = updateCategorySchema.safeParse(body);
 
-    if (name !== undefined) {
-      if (typeof name !== "string" || !name.trim()) {
-        return NextResponse.json(
-          { success: false, message: "Invalid category name" },
-          { status: 400 },
-        );
-      }
-
-      data.name = name.trim();
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: validation.error.issues[0].message,
+          errors: validation.error.flatten().fieldErrors,
+        },
+        { status: 400 },
+      );
     }
 
-    if (slug !== undefined) {
-      if (typeof slug !== "string" || !slug.trim()) {
-        return NextResponse.json(
-          { success: false, message: "Invalid category slug" },
-          { status: 400 },
-        );
-      }
+    const data = validation.data;
 
-      data.slug = slug
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json(
+        { success: false, message: "At least one field is required" },
+        { status: 400 },
+      );
     }
 
-    if (description !== undefined) {
-      data.description = description?.trim() || null;
+    // Check self-parent
+    if (data.parentId === id) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "A category cannot be its own parent",
+        },
+        { status: 400 },
+      );
     }
 
-    if (image !== undefined) {
-      data.image = image?.trim() || null;
-    }
+    // Check parent category
+    if (data.parentId) {
+      const parent = await prisma.category.findUnique({
+        where: { id: data.parentId },
+        select: { id: true },
+      });
 
-    if (parentId !== undefined) {
-      if (
-        parentId !== null &&
-        (typeof parentId !== "string" || !isValidObjectId(parentId))
-      ) {
+      if (!parent) {
         return NextResponse.json(
-          { success: false, message: "Invalid parent category ID" },
-          { status: 400 },
+          { success: false, message: "Parent category not found" },
+          { status: 404 },
         );
       }
-
-      if (parentId === id) {
-        return NextResponse.json(
-          { success: false, message: "A category cannot be its own parent" },
-          { status: 400 },
-        );
-      }
-
-      if (parentId) {
-        const parent = await prisma.category.findUnique({
-          where: { id: parentId },
-          select: { id: true },
-        });
-
-        if (!parent) {
-          return NextResponse.json(
-            { success: false, message: "Parent category not found" },
-            { status: 404 },
-          );
-        }
-      }
-
-      data.parentId = parentId;
-    }
-
-    if (isActive !== undefined) {
-      if (typeof isActive !== "boolean") {
-        return NextResponse.json(
-          { success: false, message: "Invalid active status" },
-          { status: 400 },
-        );
-      }
-
-      data.isActive = isActive;
     }
 
     const category = await prisma.category.update({
@@ -203,17 +157,10 @@ export async function PATCH(request: NextRequest, { params }: Context) {
     );
   }
 }
-
 export async function DELETE(_request: NextRequest, { params }: Context) {
   try {
-    const session = await auth();
-
-    if (session?.user?.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 },
-      );
-    }
+    // const unauthorized = await requireAdmin();
+    // if (unauthorized) return unauthorized;
 
     const { id } = await params;
 

@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { isValidObjectId } from "@/lib/isObjectId";
+import { prisma } from "@/lib/prisma";
+import { updateProductSchema } from "@/schema/product.schema";
+import { NextRequest, NextResponse } from "next/server";
 
 type Context = {
   params: Promise<{ id: string }>;
@@ -50,14 +51,8 @@ export async function GET(_request: NextRequest, { params }: Context) {
 
 export async function PATCH(request: NextRequest, { params }: Context) {
   try {
-    const session = await auth();
-
-    if (session?.user?.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 },
-      );
-    }
+    // const unauthorized = await requireAdmin();
+    // if (unauthorized) return unauthorized;
 
     const { id } = await params;
 
@@ -81,136 +76,31 @@ export async function PATCH(request: NextRequest, { params }: Context) {
 
     const body = await request.json();
 
-    const {
-      name,
-      slug,
-      sku,
-      description,
-      shortDescription,
-      price,
-      salePrice,
-      stock,
-      images,
-      thumbnail,
-      isFeatured,
-      isActive,
-      brandId,
-      categoryId,
-    } = body;
+    const validation = updateProductSchema.safeParse(body);
 
-    const data: {
-      name?: string;
-      slug?: string;
-      sku?: string;
-      description?: string | null;
-      shortDescription?: string | null;
-      price?: number;
-      salePrice?: number | null;
-      stock?: number;
-      images?: string[];
-      thumbnail?: string | null;
-      isFeatured?: boolean;
-      isActive?: boolean;
-      brand?: { connect: { id: string } };
-      category?: { connect: { id: string } };
-    } = {};
-
-    if (name !== undefined) {
-      if (typeof name !== "string" || !name.trim()) {
-        return NextResponse.json(
-          { success: false, message: "Invalid product name" },
-          { status: 400 },
-        );
-      }
-
-      data.name = name.trim();
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: validation.error.issues[0].message,
+          errors: validation.error.flatten().fieldErrors,
+        },
+        { status: 400 },
+      );
     }
 
-    if (slug !== undefined) {
-      if (typeof slug !== "string" || !slug.trim()) {
-        return NextResponse.json(
-          { success: false, message: "Invalid product slug" },
-          { status: 400 },
-        );
-      }
+    const { brandId, categoryId, ...data } = validation.data;
 
-      const normalizedSlug = slug
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-
-      if (!normalizedSlug) {
-        return NextResponse.json(
-          { success: false, message: "Invalid product slug" },
-          { status: 400 },
-        );
-      }
-
-      data.slug = normalizedSlug;
+    if (Object.keys(validation.data).length === 0) {
+      return NextResponse.json(
+        { success: false, message: "At least one field is required" },
+        { status: 400 },
+      );
     }
 
-    if (sku !== undefined) {
-      if (typeof sku !== "string" || !sku.trim()) {
-        return NextResponse.json(
-          { success: false, message: "Invalid product SKU" },
-          { status: 400 },
-        );
-      }
-
-      data.sku = sku.trim();
-    }
-
-    if (description !== undefined) {
-      if (description !== null && typeof description !== "string") {
-        return NextResponse.json(
-          { success: false, message: "Invalid description" },
-          { status: 400 },
-        );
-      }
-
-      data.description = description?.trim() || null;
-    }
-
-    if (shortDescription !== undefined) {
-      if (shortDescription !== null && typeof shortDescription !== "string") {
-        return NextResponse.json(
-          { success: false, message: "Invalid short description" },
-          { status: 400 },
-        );
-      }
-
-      data.shortDescription = shortDescription?.trim() || null;
-    }
-
-    if (price !== undefined) {
-      if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) {
-        return NextResponse.json(
-          { success: false, message: "Invalid product price" },
-          { status: 400 },
-        );
-      }
-
-      data.price = price;
-    }
-
-    if (salePrice !== undefined) {
-      if (
-        salePrice !== null &&
-        (typeof salePrice !== "number" ||
-          !Number.isFinite(salePrice) ||
-          salePrice < 0)
-      ) {
-        return NextResponse.json(
-          { success: false, message: "Invalid sale price" },
-          { status: 400 },
-        );
-      }
-
-      data.salePrice = salePrice;
-    }
-
+    // Validate final price and sale price
     const finalPrice = data.price ?? existingProduct.price;
+
     const finalSalePrice =
       data.salePrice !== undefined ? data.salePrice : existingProduct.salePrice;
 
@@ -221,72 +111,8 @@ export async function PATCH(request: NextRequest, { params }: Context) {
       );
     }
 
-    if (stock !== undefined) {
-      if (!Number.isInteger(stock) || stock < 0) {
-        return NextResponse.json(
-          { success: false, message: "Invalid product stock" },
-          { status: 400 },
-        );
-      }
-
-      data.stock = stock;
-    }
-
-    if (images !== undefined) {
-      if (
-        !Array.isArray(images) ||
-        !images.every((image) => typeof image === "string")
-      ) {
-        return NextResponse.json(
-          { success: false, message: "Images must be an array of strings" },
-          { status: 400 },
-        );
-      }
-
-      data.images = images;
-    }
-
-    if (thumbnail !== undefined) {
-      if (thumbnail !== null && typeof thumbnail !== "string") {
-        return NextResponse.json(
-          { success: false, message: "Invalid thumbnail" },
-          { status: 400 },
-        );
-      }
-
-      data.thumbnail = thumbnail?.trim() || null;
-    }
-
-    if (isFeatured !== undefined) {
-      if (typeof isFeatured !== "boolean") {
-        return NextResponse.json(
-          { success: false, message: "Invalid featured status" },
-          { status: 400 },
-        );
-      }
-
-      data.isFeatured = isFeatured;
-    }
-
-    if (isActive !== undefined) {
-      if (typeof isActive !== "boolean") {
-        return NextResponse.json(
-          { success: false, message: "Invalid active status" },
-          { status: 400 },
-        );
-      }
-
-      data.isActive = isActive;
-    }
-
+    // Check brand
     if (brandId !== undefined) {
-      if (typeof brandId !== "string" || !isValidObjectId(brandId)) {
-        return NextResponse.json(
-          { success: false, message: "Invalid brand ID" },
-          { status: 400 },
-        );
-      }
-
       const brand = await prisma.brand.findUnique({
         where: { id: brandId },
         select: { id: true },
@@ -298,18 +124,10 @@ export async function PATCH(request: NextRequest, { params }: Context) {
           { status: 404 },
         );
       }
-
-      data.brand = { connect: { id: brandId } };
     }
 
+    // Check category
     if (categoryId !== undefined) {
-      if (typeof categoryId !== "string" || !isValidObjectId(categoryId)) {
-        return NextResponse.json(
-          { success: false, message: "Invalid category ID" },
-          { status: 400 },
-        );
-      }
-
       const category = await prisma.category.findUnique({
         where: { id: categoryId },
         select: { id: true },
@@ -321,13 +139,19 @@ export async function PATCH(request: NextRequest, { params }: Context) {
           { status: 404 },
         );
       }
-
-      data.category = { connect: { id: categoryId } };
     }
 
     const product = await prisma.product.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        ...(brandId !== undefined && {
+          brand: { connect: { id: brandId } },
+        }),
+        ...(categoryId !== undefined && {
+          category: { connect: { id: categoryId } },
+        }),
+      },
       include: {
         brand: true,
         category: true,
@@ -349,8 +173,23 @@ export async function PATCH(request: NextRequest, { params }: Context) {
       error.code === "P2002"
     ) {
       return NextResponse.json(
-        { success: false, message: "Product name, slug or SKU already exists" },
+        {
+          success: false,
+          message: "Product name, slug or SKU already exists",
+        },
         { status: 409 },
+      );
+    }
+
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2025"
+    ) {
+      return NextResponse.json(
+        { success: false, message: "Product not found" },
+        { status: 404 },
       );
     }
 
@@ -360,7 +199,6 @@ export async function PATCH(request: NextRequest, { params }: Context) {
     );
   }
 }
-
 export async function DELETE(_request: NextRequest, { params }: Context) {
   try {
     const session = await auth();

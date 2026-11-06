@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isValidObjectId } from "@/lib/isObjectId";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { createProductSchema } from "@/schema/product.schema";
 
 export async function GET(request: NextRequest) {
   try {
@@ -103,16 +105,23 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // const session = await auth();
-
-    // if (session?.user?.role !== "ADMIN") {
-    //   return NextResponse.json(
-    //     { success: false, message: "Unauthorized" },
-    //     { status: 401 },
-    //   );
-    // }
+    // const unauthorized = await requireAdmin();
+    // if (unauthorized) return unauthorized;
 
     const body = await request.json();
+
+    const validation = createProductSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: validation.error.issues[0].message,
+          errors: validation.error.flatten().fieldErrors,
+        },
+        { status: 400 },
+      );
+    }
 
     const {
       name,
@@ -129,95 +138,9 @@ export async function POST(request: NextRequest) {
       isActive,
       brandId,
       categoryId,
-    } = body;
+    } = validation.data;
 
-    if (
-      typeof name !== "string" ||
-      !name.trim() ||
-      typeof slug !== "string" ||
-      !slug.trim() ||
-      typeof sku !== "string" ||
-      !sku.trim()
-    ) {
-      return NextResponse.json(
-        { success: false, message: "Name, slug and SKU are required" },
-        { status: 400 },
-      );
-    }
-
-    if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) {
-      return NextResponse.json(
-        { success: false, message: "Price must be a valid positive number" },
-        { status: 400 },
-      );
-    }
-
-    if (
-      salePrice !== undefined &&
-      salePrice !== null &&
-      (typeof salePrice !== "number" ||
-        !Number.isFinite(salePrice) ||
-        salePrice < 0)
-    ) {
-      return NextResponse.json(
-        { success: false, message: "Invalid sale price" },
-        { status: 400 },
-      );
-    }
-
-    if (salePrice !== undefined && salePrice !== null && salePrice >= price) {
-      return NextResponse.json(
-        { success: false, message: "Sale price must be lower than price" },
-        { status: 400 },
-      );
-    }
-
-    if (!Number.isInteger(stock) || stock < 0) {
-      return NextResponse.json(
-        { success: false, message: "Stock must be a non-negative integer" },
-        { status: 400 },
-      );
-    }
-
-    if (
-      !Array.isArray(images) ||
-      !images.every((image) => typeof image === "string")
-    ) {
-      return NextResponse.json(
-        { success: false, message: "Images must be an array of strings" },
-        { status: 400 },
-      );
-    }
-
-    if (
-      typeof brandId !== "string" ||
-      !isValidObjectId(brandId) ||
-      typeof categoryId !== "string" ||
-      !isValidObjectId(categoryId)
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Valid brand and category IDs are required",
-        },
-        { status: 400 },
-      );
-    }
-
-    if (isFeatured !== undefined && typeof isFeatured !== "boolean") {
-      return NextResponse.json(
-        { success: false, message: "Invalid featured status" },
-        { status: 400 },
-      );
-    }
-
-    if (isActive !== undefined && typeof isActive !== "boolean") {
-      return NextResponse.json(
-        { success: false, message: "Invalid active status" },
-        { status: 400 },
-      );
-    }
-
+    // Check brand and category
     const [brand, category] = await Promise.all([
       prisma.brand.findUnique({
         where: { id: brandId },
@@ -243,24 +166,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const normalizedSlug = slug
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-
     const product = await prisma.product.create({
       data: {
-        name: name.trim(),
-        slug: normalizedSlug,
-        sku: sku.trim(),
-        description: description?.trim() || null,
-        shortDescription: shortDescription?.trim() || null,
+        name,
+        slug,
+        sku,
+        description: description || null,
+        shortDescription: shortDescription || null,
         price,
         salePrice: salePrice ?? null,
         stock,
         images,
-        thumbnail: thumbnail?.trim() || null,
+        thumbnail: thumbnail || null,
         isFeatured: isFeatured ?? false,
         isActive: isActive ?? true,
         brand: { connect: { id: brandId } },
@@ -290,7 +207,10 @@ export async function POST(request: NextRequest) {
       error.code === "P2002"
     ) {
       return NextResponse.json(
-        { success: false, message: "Product name, slug or SKU already exists" },
+        {
+          success: false,
+          message: "Product name, slug or SKU already exists",
+        },
         { status: 409 },
       );
     }

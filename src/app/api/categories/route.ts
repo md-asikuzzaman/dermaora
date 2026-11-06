@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { createCategorySchema } from "@/schema/category.schema";
 
 export async function GET() {
   try {
@@ -41,41 +43,27 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    // const session = await auth();
-
-    // if (session?.user?.role !== "ADMIN") {
-    //   return NextResponse.json(
-    //     { success: false, message: "Unauthorized" },
-    //     { status: 401 },
-    //   );
-    // }
+    // const unauthorized = await requireAdmin();
+    // if (unauthorized) return unauthorized;
 
     const body = await request.json();
-    const { name, slug, description, image, parentId } = body;
 
-    if (
-      typeof name !== "string" ||
-      !name.trim() ||
-      typeof slug !== "string" ||
-      !slug.trim()
-    ) {
+    const validation = createCategorySchema.safeParse(body);
+
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, message: "Name and slug are required" },
+        {
+          success: false,
+          message: validation.error.issues[0].message,
+          errors: validation.error.flatten().fieldErrors,
+        },
         { status: 400 },
       );
     }
 
-    if (
-      parentId !== undefined &&
-      parentId !== null &&
-      (typeof parentId !== "string" || !/^[a-f\d]{24}$/i.test(parentId))
-    ) {
-      return NextResponse.json(
-        { success: false, message: "Invalid parent category ID" },
-        { status: 400 },
-      );
-    }
+    const { name, slug, description, image, parentId } = validation.data;
 
+    // Check parent category
     if (parentId) {
       const parent = await prisma.category.findUnique({
         where: { id: parentId },
@@ -90,18 +78,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const normalizedSlug = slug
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-
     const category = await prisma.category.create({
       data: {
-        name: name.trim(),
-        slug: normalizedSlug,
-        description: description?.trim() || null,
-        image: image?.trim() || null,
+        name,
+        slug,
+        description: description || null,
+        image: image || null,
         parentId: parentId || null,
       },
     });

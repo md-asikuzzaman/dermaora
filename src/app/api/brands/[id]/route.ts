@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isValidObjectId } from "@/lib/isObjectId";
+import { requireAdmin } from "@/lib/requireAdmin";
+import { updateBrandSchema } from "@/schema/brand.schema";
 
 type Context = {
   params: Promise<{ id: string }>;
@@ -46,14 +48,8 @@ export async function GET(_request: NextRequest, { params }: Context) {
 
 export async function PATCH(request: NextRequest, { params }: Context) {
   try {
-    // const session = await auth();
-
-    // if (session?.user?.role !== "ADMIN") {
-    //   return NextResponse.json(
-    //     { success: false, message: "Unauthorized" },
-    //     { status: 401 },
-    //   );
-    // }
+    // const unauthorized = await requireAdmin();
+    // if (unauthorized) return unauthorized;
 
     const { id } = await params;
 
@@ -65,59 +61,27 @@ export async function PATCH(request: NextRequest, { params }: Context) {
     }
 
     const body = await request.json();
-    const { name, slug, description, logo, website, isActive } = body;
 
-    const data: {
-      name?: string;
-      slug?: string;
-      description?: string | null;
-      logo?: string | null;
-      website?: string | null;
-      isActive?: boolean;
-    } = {};
+    const validation = updateBrandSchema.safeParse(body);
 
-    if (name !== undefined) {
-      if (typeof name !== "string" || !name.trim()) {
-        return NextResponse.json(
-          { success: false, message: "Invalid brand name" },
-          { status: 400 },
-        );
-      }
-
-      data.name = name.trim();
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: validation.error.issues[0].message,
+          errors: validation.error.flatten().fieldErrors,
+        },
+        { status: 400 },
+      );
     }
 
-    if (slug !== undefined) {
-      if (typeof slug !== "string" || !slug.trim()) {
-        return NextResponse.json(
-          { success: false, message: "Invalid brand slug" },
-          { status: 400 },
-        );
-      }
+    const data = validation.data;
 
-      data.slug = slug
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-    }
-
-    if (description !== undefined) {
-      data.description = description?.trim() || null;
-    }
-
-    if (logo !== undefined) data.logo = logo?.trim() || null;
-    if (website !== undefined) data.website = website?.trim() || null;
-
-    if (isActive !== undefined) {
-      if (typeof isActive !== "boolean") {
-        return NextResponse.json(
-          { success: false, message: "Invalid active status" },
-          { status: 400 },
-        );
-      }
-
-      data.isActive = isActive;
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json(
+        { success: false, message: "At least one field is required" },
+        { status: 400 },
+      );
     }
 
     const brand = await prisma.brand.update({
@@ -163,7 +127,6 @@ export async function PATCH(request: NextRequest, { params }: Context) {
     );
   }
 }
-
 export async function DELETE(_request: NextRequest, { params }: Context) {
   try {
     // const session = await auth();

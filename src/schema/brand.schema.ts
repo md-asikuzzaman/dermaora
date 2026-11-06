@@ -20,6 +20,8 @@ const brandBaseSchema = z.object({
   logo: z.string().trim().nullable().optional(),
 
   website: z.string().trim().nullable().optional(),
+
+  isActive: z.boolean().default(true),
 });
 
 export const createBrandSchema = brandBaseSchema;

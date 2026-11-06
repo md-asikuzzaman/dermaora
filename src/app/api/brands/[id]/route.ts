@@ -62,6 +62,8 @@ export async function PATCH(request: NextRequest, { params }: Context) {
 
     const body = await request.json();
 
+    console.log(body);
+
     const validation = updateBrandSchema.safeParse(body);
 
     if (!validation.success) {
@@ -127,6 +129,7 @@ export async function PATCH(request: NextRequest, { params }: Context) {
     );
   }
 }
+
 export async function DELETE(_request: NextRequest, { params }: Context) {
   try {
     // const session = await auth();

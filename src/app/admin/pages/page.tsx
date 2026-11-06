@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 import {
   Table,
@@ -13,7 +12,6 @@ import {
 import { getPages } from "@/services/page.service";
 
 import { Suspense } from "react";
-import Link from "next/link";
 import { CreatePageDialog } from "./_components/create-page-dialog";
 import { PageActions } from "./_components/page-actions";
 

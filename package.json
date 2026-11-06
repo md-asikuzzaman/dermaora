@@ -2,7 +2,7 @@
   "name": "puck-ecom",
   "version": "0.1.0",
   "private": true,
-  "postinstall": "prisma generate",
+  "postinstall": "prisma db push && prisma generate",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

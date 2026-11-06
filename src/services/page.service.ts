@@ -12,8 +12,6 @@ export async function getPublishedPageBySlug(
 
   const url = new URL(`/api/pages?slug=${encodeURIComponent(slug)}`, baseUrl);
 
-  console.log(url);
-
   const response = await fetch(url, {
     cache: "no-store",
   });

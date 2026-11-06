@@ -62,8 +62,6 @@ export async function PATCH(request: NextRequest, { params }: Context) {
 
     const body = await request.json();
 
-    console.log(body);
-
     const validation = updateBrandSchema.safeParse(body);
 
     if (!validation.success) {

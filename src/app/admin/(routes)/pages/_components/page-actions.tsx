@@ -116,10 +116,16 @@ export function PageActions({ page }: PageActionsProps) {
     <div className="flex items-center justify-end gap-1">
       {/* Page Builder */}
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
         aria-label="Open page builder"
-        render={<Link href={`/admin/pages/${page.id}`} />}
+        render={
+          <Link
+            href={`/admin/editor/${page.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          />
+        }
       >
         <Blocks className="size-4" />
       </Button>
@@ -139,7 +145,7 @@ export function PageActions({ page }: PageActionsProps) {
       >
         <DialogTrigger
           render={
-            <Button variant="ghost" size="icon" aria-label="Edit page">
+            <Button variant="outline" size="icon" aria-label="Edit page">
               <Pencil className="size-4" />
             </Button>
           }
@@ -239,7 +245,7 @@ export function PageActions({ page }: PageActionsProps) {
         <AlertDialogTrigger
           render={
             <Button
-              variant="ghost"
+              variant="destructive"
               size="icon"
               aria-label="Delete page"
               className="text-destructive hover:text-destructive"

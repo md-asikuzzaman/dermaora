@@ -3,7 +3,7 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
@@ -47,6 +47,7 @@ import {
   updateBrandSchema,
   type UpdateBrandInput,
 } from "@/schema/brand.schema";
+import { GalleryImageField } from "@/components/gallery/gallery-image-field";
 
 type BrandActionsProps = {
   brand: {
@@ -222,23 +223,20 @@ export function BrandActions({ brand }: BrandActionsProps) {
                 </p>
               </div>
 
-              {/* Logo */}
-              <div className="grid gap-2">
-                <Label htmlFor={`logo-${brand.id}`}>Brand Logo URL</Label>
-
-                <Input
-                  id={`logo-${brand.id}`}
-                  placeholder="https://example.com/logo.png"
-                  {...register("logo")}
-                  disabled={isSubmitting}
-                />
-
-                {errors.logo && (
-                  <p className="text-sm text-destructive">
-                    {errors.logo.message}
-                  </p>
+              {/* Brand Logo */}
+              <Controller
+                control={control}
+                name="logo"
+                render={({ field }) => (
+                  <GalleryImageField
+                    label="Brand Logo"
+                    mode="single"
+                    value={field.value || null}
+                    onChange={(value) => field.onChange(value ?? "")}
+                    isEdit
+                  />
                 )}
-              </div>
+              />
 
               {/* Status */}
               <div className="grid gap-2">

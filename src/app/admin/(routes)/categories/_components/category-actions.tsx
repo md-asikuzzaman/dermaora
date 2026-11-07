@@ -54,6 +54,7 @@ import {
   updateCategorySchema,
   type UpdateCategoryInput,
 } from "@/schema/category.schema";
+import { GalleryImageField } from "@/components/gallery/gallery-image-field";
 
 type CategoryActionsProps = {
   category: Category;
@@ -255,22 +256,19 @@ export function CategoryActions({ category }: CategoryActionsProps) {
               </div>
 
               {/* Image */}
-              <div className="grid gap-2">
-                <Label htmlFor={`image-${category.id}`}>Image URL</Label>
-
-                <Input
-                  id={`image-${category.id}`}
-                  placeholder="https://example.com/image.jpg"
-                  {...register("image")}
-                  disabled={isSubmitting}
-                />
-
-                {errors.image && (
-                  <p className="text-sm text-destructive">
-                    {errors.image.message}
-                  </p>
+              <Controller
+                control={control}
+                name="image"
+                render={({ field }) => (
+                  <GalleryImageField
+                    label="Category Image"
+                    mode="single"
+                    value={field.value || null}
+                    onChange={(value) => field.onChange(value ?? "")}
+                    isEdit
+                  />
                 )}
-              </div>
+              />
 
               {/* Parent Category */}
               <div className="grid gap-2">

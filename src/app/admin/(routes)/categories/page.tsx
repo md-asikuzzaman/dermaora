@@ -8,9 +8,7 @@ import {
 } from "@/components/ui/table";
 
 import { Suspense } from "react";
-
 import { getCategories } from "@/services/category.service";
-
 import { CreateCategoryDialog } from "./_components/create-category-dialog";
 import { CategoryActions } from "./_components/category-actions";
 

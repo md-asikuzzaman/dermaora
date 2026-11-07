@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ import {
   createCategorySchema,
 } from "@/schema/category.schema";
 import type { Category } from "@prisma/client";
+import { GalleryImageField } from "@/components/gallery/gallery-image-field";
 
 export function CreateCategoryDialog() {
   const router = useRouter();
@@ -197,22 +198,18 @@ export function CreateCategoryDialog() {
             </div>
 
             {/* Image */}
-            <div className="grid gap-2">
-              <Label htmlFor="image">Image URL</Label>
-
-              <Input
-                id="image"
-                placeholder="https://example.com/image.jpg"
-                {...register("image")}
-                disabled={isSubmitting}
-              />
-
-              {errors.image && (
-                <p className="text-xs text-destructive">
-                  {errors.image.message}
-                </p>
+            <Controller
+              control={control}
+              name="image"
+              render={({ field }) => (
+                <GalleryImageField
+                  label="Category Image"
+                  mode="single"
+                  value={field.value || null}
+                  onChange={(value) => field.onChange(value ?? "")}
+                />
               )}
-            </div>
+            />
 
             {/* Parent Category */}
             <div className="grid gap-2">

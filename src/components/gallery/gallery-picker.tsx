@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dialog";
 
 import type { GalleryPickerProps } from "./gallery-types";
+import image from "next/image";
 
 const LIMIT = 12;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;

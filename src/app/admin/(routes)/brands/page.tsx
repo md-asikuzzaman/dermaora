@@ -13,6 +13,7 @@ import { Suspense } from "react";
 import { CreateBrandDialog } from "./_components/create-brand-dialog";
 import { BrandActions } from "./_components/brand-actions";
 import { getBrands } from "@/services/brand.service";
+import SafeImage from "@/components/SafeImage";
 
 export default function Brands() {
   return (
@@ -60,7 +61,16 @@ async function BrandRenderer() {
             ) : (
               brands.map((brand) => (
                 <TableRow key={brand.id}>
-                  <TableCell className="font-medium">{brand.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <SafeImage
+                      src={brand.logo as string}
+                      alt={brand.name}
+                      width={40}
+                      height={40}
+                      className="mr-2 inline-block h-10 w-10 rounded-md object-cover"
+                    />
+                    {brand.name}
+                  </TableCell>
 
                   <TableCell className="text-muted-foreground">
                     /{brand.slug}

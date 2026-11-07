@@ -3,7 +3,7 @@
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
@@ -33,6 +33,7 @@ import {
 
 import { createProduct } from "@/services/product.service";
 import { createProductSchema } from "@/schema/product.schema";
+import { GalleryImageField } from "@/components/gallery/gallery-image-field";
 
 type ProductFormValues = z.input<typeof createProductSchema>;
 type ProductPayload = z.output<typeof createProductSchema>;
@@ -54,9 +55,16 @@ export function CreateProductDialog({
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
-  const [imagesText, setImagesText] = useState("");
 
-  const form = useForm<ProductFormValues, unknown, ProductPayload>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    control,
+    formState,
+    getValues,
+  } = useForm<ProductFormValues, unknown, ProductPayload>({
     resolver: zodResolver(createProductSchema),
     defaultValues: {
       name: "",
@@ -77,22 +85,22 @@ export function CreateProductDialog({
   });
 
   const slug = useWatch({
-    control: form.control,
+    control: control,
     name: "slug",
   });
 
   const brandId = useWatch({
-    control: form.control,
+    control: control,
     name: "brandId",
   });
 
   const categoryId = useWatch({
-    control: form.control,
+    control: control,
     name: "categoryId",
   });
 
   const handleNameChange = (value: string) => {
-    form.setValue("name", value);
+    setValue("name", value);
 
     const generatedSlug = value
       .toLowerCase()
@@ -100,31 +108,25 @@ export function CreateProductDialog({
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
 
-    form.setValue("slug", generatedSlug, {
+    setValue("slug", generatedSlug, {
       shouldValidate: true,
     });
   };
 
   const onSubmit = async (values: ProductPayload) => {
     try {
-      const images = imagesText
-        .split("\n")
-        .map((image) => image.trim())
-        .filter(Boolean);
-
       await createProduct({
         ...values,
         description: values.description || null,
         shortDescription: values.shortDescription || null,
         thumbnail: values.thumbnail || null,
         salePrice: values.salePrice ?? null,
-        images,
+        images: values.images,
       });
 
       toast.success("Product created successfully.");
 
-      form.reset();
-      setImagesText("");
+      reset();
       setOpen(false);
       router.refresh();
     } catch (error) {
@@ -153,19 +155,19 @@ export function CreateProductDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Product Name</Label>
               <Input
                 id="name"
                 placeholder="Enter product name"
-                {...form.register("name")}
+                {...register("name")}
                 onChange={(event) => handleNameChange(event.target.value)}
               />
-              {form.formState.errors.name && (
+              {formState.errors.name && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.name.message}
+                  {formState.errors.name.message}
                 </p>
               )}
             </div>
@@ -175,12 +177,12 @@ export function CreateProductDialog({
               <Input
                 id="slug"
                 placeholder="product-slug"
-                {...form.register("slug")}
+                {...register("slug")}
                 value={slug ?? ""}
               />
-              {form.formState.errors.slug && (
+              {formState.errors.slug && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.slug.message}
+                  {formState.errors.slug.message}
                 </p>
               )}
             </div>
@@ -190,11 +192,11 @@ export function CreateProductDialog({
               <Input
                 id="sku"
                 placeholder="Enter product SKU"
-                {...form.register("sku")}
+                {...register("sku")}
               />
-              {form.formState.errors.sku && (
+              {formState.errors.sku && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.sku.message}
+                  {formState.errors.sku.message}
                 </p>
               )}
             </div>
@@ -206,13 +208,13 @@ export function CreateProductDialog({
                 type="number"
                 step="0.01"
                 min="0"
-                {...form.register("price", {
+                {...register("price", {
                   valueAsNumber: true,
                 })}
               />
-              {form.formState.errors.price && (
+              {formState.errors.price && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.price.message}
+                  {formState.errors.price.message}
                 </p>
               )}
             </div>
@@ -224,13 +226,13 @@ export function CreateProductDialog({
                 type="number"
                 step="0.01"
                 min="0"
-                {...form.register("salePrice", {
+                {...register("salePrice", {
                   setValueAs: (value) => (value === "" ? null : Number(value)),
                 })}
               />
-              {form.formState.errors.salePrice && (
+              {formState.errors.salePrice && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.salePrice.message}
+                  {formState.errors.salePrice.message}
                 </p>
               )}
             </div>
@@ -241,13 +243,13 @@ export function CreateProductDialog({
                 id="stock"
                 type="number"
                 min="0"
-                {...form.register("stock", {
+                {...register("stock", {
                   valueAsNumber: true,
                 })}
               />
-              {form.formState.errors.stock && (
+              {formState.errors.stock && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.stock.message}
+                  {formState.errors.stock.message}
                 </p>
               )}
             </div>
@@ -258,7 +260,7 @@ export function CreateProductDialog({
                 value={brandId}
                 onValueChange={(value) =>
                   value &&
-                  form.setValue("brandId", value, {
+                  setValue("brandId", value, {
                     shouldValidate: true,
                   })
                 }
@@ -277,9 +279,9 @@ export function CreateProductDialog({
                   ))}
                 </SelectContent>
               </Select>
-              {form.formState.errors.brandId && (
+              {formState.errors.brandId && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.brandId.message}
+                  {formState.errors.brandId.message}
                 </p>
               )}
             </div>
@@ -290,7 +292,7 @@ export function CreateProductDialog({
                 value={categoryId}
                 onValueChange={(value) =>
                   value &&
-                  form.setValue("categoryId", value, {
+                  setValue("categoryId", value, {
                     shouldValidate: true,
                   })
                 }
@@ -312,9 +314,9 @@ export function CreateProductDialog({
                   ))}
                 </SelectContent>
               </Select>
-              {form.formState.errors.categoryId && (
+              {formState.errors.categoryId && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.categoryId.message}
+                  {formState.errors.categoryId.message}
                 </p>
               )}
             </div>
@@ -325,7 +327,7 @@ export function CreateProductDialog({
             <Textarea
               id="shortDescription"
               placeholder="Enter short description"
-              {...form.register("shortDescription")}
+              {...register("shortDescription")}
             />
           </div>
 
@@ -335,40 +337,46 @@ export function CreateProductDialog({
               id="description"
               placeholder="Enter product description"
               rows={4}
-              {...form.register("description")}
+              {...register("description")}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="thumbnail">Thumbnail URL</Label>
-            <Input
-              id="thumbnail"
-              placeholder="https://example.com/thumbnail.jpg"
-              {...form.register("thumbnail")}
-            />
-          </div>
+          {/* Thumbnail */}
+          <Controller
+            control={control}
+            name="thumbnail"
+            render={({ field }) => (
+              <GalleryImageField
+                label="Product Thumbnail"
+                mode="single"
+                value={field.value || null}
+                onChange={(value) => field.onChange(value ?? "")}
+              />
+            )}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="images">Product Images</Label>
-            <Textarea
-              id="images"
-              placeholder={"Enter image URLs, one per line"}
-              rows={3}
-              value={imagesText}
-              onChange={(event) => setImagesText(event.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Add one image URL per line.
-            </p>
-          </div>
+          {/* Product Images */}
+          <Controller
+            control={control}
+            name="images"
+            render={({ field }) => (
+              <GalleryImageField
+                label="Product Images"
+                mode="multiple"
+                value={field.value ?? []}
+                onChange={field.onChange}
+                maxSelection={5}
+              />
+            )}
+          />
 
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <Checkbox
                 id="isFeatured"
-                checked={!!form.getValues("isFeatured")}
+                checked={!!getValues("isFeatured")}
                 onCheckedChange={(checked) =>
-                  form.setValue("isFeatured", checked === true)
+                  setValue("isFeatured", checked === true)
                 }
               />
               <Label htmlFor="isFeatured">Featured Product</Label>
@@ -377,9 +385,9 @@ export function CreateProductDialog({
             <div className="flex items-center gap-2">
               <Checkbox
                 id="isActive"
-                checked={!!form.getValues("isActive")}
+                checked={!!getValues("isActive")}
                 onCheckedChange={(checked) =>
-                  form.setValue("isActive", checked === true)
+                  setValue("isActive", checked === true)
                 }
               />
               <Label htmlFor="isActive">Active</Label>
@@ -395,8 +403,8 @@ export function CreateProductDialog({
               Cancel
             </Button>
 
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Creating..." : "Create Product"}
+            <Button type="submit" disabled={formState.isSubmitting}>
+              {formState.isSubmitting ? "Creating..." : "Create Product"}
             </Button>
           </div>
         </form>

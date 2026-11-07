@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Pencil, Trash2 } from "lucide-react";
@@ -46,6 +46,7 @@ import {
 import { deleteProduct, updateProduct } from "@/services/product.service";
 import { updateProductSchema } from "@/schema/product.schema";
 import { Product } from "@prisma/client";
+import { GalleryImageField } from "@/components/gallery/gallery-image-field";
 
 type ProductFormValues = z.input<typeof updateProductSchema>;
 type ProductPayload = z.output<typeof updateProductSchema>;
@@ -70,7 +71,6 @@ export function ProductActions({
 
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [imagesText, setImagesText] = useState(product.images.join("\n"));
   const [isDeleting, setIsDeleting] = useState(false);
 
   const form = useForm<ProductFormValues, unknown, ProductPayload>({
@@ -124,8 +124,6 @@ export function ProductActions({
       brandId: product.brandId,
       categoryId: product.categoryId,
     });
-
-    setImagesText(product.images.join("\n"));
   };
 
   const handleNameChange = (value: string) => {
@@ -143,17 +141,12 @@ export function ProductActions({
 
   const handleEdit = async (values: ProductPayload) => {
     try {
-      const images = imagesText
-        .split("\n")
-        .map((image) => image.trim())
-        .filter(Boolean);
-
       await updateProduct(product.id, {
         ...values,
         description: values.description?.trim() || null,
         shortDescription: values.shortDescription?.trim() || null,
         thumbnail: values.thumbnail?.trim() || null,
-        images,
+        images: values.images,
       });
 
       toast.success("Product updated successfully.");
@@ -406,33 +399,36 @@ export function ProductActions({
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-thumbnail">Thumbnail URL</Label>
-              <Input
-                id="edit-thumbnail"
-                placeholder="https://example.com/thumbnail.jpg"
-                {...register("thumbnail")}
-              />
-              {errors.thumbnail && (
-                <p className="text-sm text-destructive">
-                  {errors.thumbnail.message}
-                </p>
+            {/* Thumbnail */}
+            <Controller
+              control={control}
+              name="thumbnail"
+              render={({ field }) => (
+                <GalleryImageField
+                  label="Product Thumbnail"
+                  mode="single"
+                  value={field.value || null}
+                  onChange={(value) => field.onChange(value ?? "")}
+                  isEdit
+                />
               )}
-            </div>
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-images">Product Images</Label>
-              <Textarea
-                id="edit-images"
-                value={imagesText}
-                onChange={(event) => setImagesText(event.target.value)}
-                placeholder="Enter image URLs, one per line"
-                rows={3}
-              />
-              <p className="text-xs text-muted-foreground">
-                Add one image URL per line.
-              </p>
-            </div>
+            {/* Product Images */}
+            <Controller
+              control={control}
+              name="images"
+              render={({ field }) => (
+                <GalleryImageField
+                  label="Product Images"
+                  mode="multiple"
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  maxSelection={5}
+                  isEdit
+                />
+              )}
+            />
 
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">

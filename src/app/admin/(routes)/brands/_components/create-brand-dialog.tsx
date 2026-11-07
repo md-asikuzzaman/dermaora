@@ -178,21 +178,6 @@ export function CreateBrandDialog() {
               )}
             />
 
-            {/* For multiple images */}
-            {/* <Controller
-              control={control}
-              name="images"
-              render={({ field }) => (
-                <GalleryImageField
-                  label="Product Images"
-                  mode="multiple"
-                  value={field.value}
-                  onChange={field.onChange}
-                  maxSelection={5}
-                />
-              )}
-            /> */}
-
             {errors.logo && (
               <p className="text-xs text-destructive">{errors.logo.message}</p>
             )}

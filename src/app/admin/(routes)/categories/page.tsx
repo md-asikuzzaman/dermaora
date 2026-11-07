@@ -11,6 +11,7 @@ import { Suspense } from "react";
 import { getCategories } from "@/services/category.service";
 import { CreateCategoryDialog } from "./_components/create-category-dialog";
 import { CategoryActions } from "./_components/category-actions";
+import SafeImage from "@/components/SafeImage";
 
 export default function Categories() {
   return (
@@ -63,7 +64,16 @@ async function CategoryRenderer() {
             ) : (
               categories.map((category) => (
                 <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <SafeImage
+                      src={category.image as string}
+                      alt={category.name}
+                      width={40}
+                      height={40}
+                      className="mr-2 inline-block h-10 w-10 rounded-md object-cover"
+                    />
+                    {category.name}
+                  </TableCell>
 
                   <TableCell className="text-muted-foreground">
                     /{category.slug}

@@ -16,6 +16,8 @@ import { getBrands } from "@/services/brand.service";
 import { getCategories } from "@/services/category.service";
 import { CreateProductDialog } from "./_components/create-product-dialog";
 import { ProductActions } from "./_components/product-actions";
+import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 
 export default function Products() {
   return (
@@ -85,9 +87,16 @@ async function ProductRenderer() {
               products.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">
+                    <SafeImage
+                      src={product.thumbnail as string}
+                      alt={product.name}
+                      width={40}
+                      height={40}
+                      className="mr-2 inline-block h-10 w-10 rounded-md object-cover"
+                    />
                     {product.name}
                     {product.isFeatured && (
-                      <Badge variant="outline" className="ml-2">
+                      <Badge variant="secondary" className="ml-2">
                         Featured
                       </Badge>
                     )}

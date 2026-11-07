@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
       success: true,
       message: "Products fetched successfully",
       data: products,
-      pagination: {
+      meta: {
         total,
         page,
         limit,

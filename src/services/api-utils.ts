@@ -1,8 +1,4 @@
-type ApiResponse<T> = {
-  success: boolean;
-  message?: string;
-  data: T;
-};
+
 
 export const getBaseUrl = () => {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL;

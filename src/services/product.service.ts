@@ -1,17 +1,34 @@
-import type { Product } from "@prisma/client";
-import { getBaseUrl, handleResponse } from "./api-utils";
 import {
   CreateProductInput,
   UpdateProductInput,
 } from "@/schema/product.schema";
+import type { Product } from "@prisma/client";
+import { getBaseUrl, handleResponse } from "./api-utils";
 
 /** Get all products */
-export async function getProducts(): Promise<Product[]> {
-  const response = await fetch(`${getBaseUrl()}/api/products`, {
-    cache: "no-store",
+export async function getProducts(
+  page = 1,
+  limit = 2,
+): Promise<ApiResponse<Product[]>> {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
   });
 
-  return handleResponse<Product[]>(response);
+  const response = await fetch(
+    `${getBaseUrl()}/api/products?${params.toString()}`,
+    {
+      cache: "no-store",
+    },
+  );
+
+  const result: ApiResponse<Product[]> = await response.json();
+
+  if (!response.ok || !result.success) {
+    throw new Error(result.message || "Something went wrong");
+  }
+
+  return result;
 }
 
 /** Create product */

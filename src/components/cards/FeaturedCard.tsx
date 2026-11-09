@@ -3,14 +3,13 @@
 import { motion } from "motion/react";
 import Link from "next/link";
 import SafeImage from "../SafeImage";
+import { BannerAdsPuckBannerItem } from "../puck-ui/banner-ads.puck";
 
-interface Props {
-  photo: string;
-  url: string;
+interface Props extends BannerAdsPuckBannerItem {
   i: number;
 }
 
-const FeaturedCard = ({ photo, url, i }: Props & { i: number }) => {
+const FeaturedCard = ({ photo, url, i }: Props) => {
   return (
     <Link prefetch={false} href={url} className="w-full">
       <motion.div

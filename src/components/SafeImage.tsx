@@ -1,5 +1,6 @@
 "use client";
 
+import { PLACEHOLDER_IMAGE } from "@/lib/utils";
 import Image, { type ImageProps } from "next/image";
 import { useState } from "react";
 
@@ -9,12 +10,10 @@ interface SafeImageProps extends Omit<ImageProps, "src" | "alt"> {
   fallback?: string;
 }
 
-const FALLBACK_IMAGE = "/images/placeholder.png";
-
 export default function SafeImage({
   src,
   alt,
-  fallback = FALLBACK_IMAGE,
+  fallback = PLACEHOLDER_IMAGE,
   ...rest
 }: SafeImageProps) {
   const [hasError, setHasError] = useState(false);

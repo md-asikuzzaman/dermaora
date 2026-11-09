@@ -3,14 +3,15 @@ import type { ComponentConfig } from "@puckeditor/core";
 import HeroSlider from "../HeroSlider";
 import { GalleryImageField } from "../gallery/gallery-image-field";
 import Tips from "./Tips";
+import { PLACEHOLDER_IMAGE } from "@/lib/utils";
 
-interface SlideItem {
+export interface HeroSliderPuckSlideItem {
   photo: string;
-  link: string;
+  url: string;
 }
 
 interface Props {
-  slides: SlideItem[];
+  slides: HeroSliderPuckSlideItem[];
   tips?: string;
 }
 
@@ -38,7 +39,7 @@ export const HeroSliderPuck: ComponentConfig<Props> = {
           ),
         },
 
-        link: {
+        url: {
           type: "text",
           label: "Slide Link",
         },
@@ -61,9 +62,9 @@ export const HeroSliderPuck: ComponentConfig<Props> = {
 
   defaultProps: {
     slides: [
-      { photo: "/images/placeholder.png", link: "#" },
-      { photo: "/images/placeholder.png", link: "#" },
-      { photo: "/images/placeholder.png", link: "#" },
+      { photo: PLACEHOLDER_IMAGE, url: "#" },
+      { photo: PLACEHOLDER_IMAGE, url: "#" },
+      { photo: PLACEHOLDER_IMAGE, url: "#" },
     ],
     tips: "",
   },

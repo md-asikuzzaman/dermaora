@@ -8,9 +8,10 @@ import Link from "next/link";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import SafeImage from "./SafeImage";
+import { HeroSliderPuckSlideItem } from "./puck-ui/hero-slider.puck";
 
 interface Props {
-  data: { photo: string; link: string }[];
+  data: HeroSliderPuckSlideItem[];
 }
 
 export default function HeroSlider({ data: slides }: Props) {
@@ -53,7 +54,7 @@ export default function HeroSlider({ data: slides }: Props) {
         {/* Responsive Hero Slider */}
         {slides.map((slide, index) => (
           <SwiperSlide key={index}>
-            <Link href={slide.link || "/"} className="block w-full">
+            <Link href={slide.url || "/"} className="block w-full">
               <div className="w-full">
                 <SafeImage
                   src={slide.photo}

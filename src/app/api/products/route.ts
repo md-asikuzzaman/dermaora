@@ -1,9 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { isValidObjectId } from "@/lib/isObjectId";
-import { requireAdmin } from "@/lib/requireAdmin";
+import { prisma } from "@/lib/prisma";
 import { createProductSchema } from "@/schema/product.schema";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {

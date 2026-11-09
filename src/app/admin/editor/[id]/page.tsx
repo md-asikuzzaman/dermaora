@@ -1,4 +1,4 @@
-import PageEditor from "@/components/puck/editor";
+import PageEditor from "@/puck/editor";
 import { Suspense } from "react";
 
 type Props = {

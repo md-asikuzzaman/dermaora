@@ -1,6 +1,6 @@
 import Container from "@/components/Container";
 import type { ComponentConfig } from "@puckeditor/core";
-import HeroSlider from "../HeroSlider";
+import HeroSlider from "../sliders/HeroSlider";
 import { GalleryImageField } from "../gallery/gallery-image-field";
 import Tips from "./Tips";
 import { PLACEHOLDER_IMAGE } from "@/lib/utils";

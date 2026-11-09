@@ -7,8 +7,8 @@ import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import SafeImage from "./SafeImage";
-import { HeroSliderPuckSlideItem } from "./puck-ui/hero-slider.puck";
+import SafeImage from "../SafeImage";
+import { HeroSliderPuckSlideItem } from "../puck-ui/hero-slider.puck";
 
 interface Props {
   data: HeroSliderPuckSlideItem[];

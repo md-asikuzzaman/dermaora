@@ -216,9 +216,9 @@ const Footer = () => {
       {/* Bottom Bar */}
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-center sm:px-6 md:flex-row lg:px-8">
-          <p className="text-xs text-muted-foreground">
+          {/* <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Dermaora. All rights reserved.
-          </p>
+          </p> */}
 
           <div className="flex flex-wrap items-center justify-center gap-5 text-xs text-muted-foreground">
             <Link

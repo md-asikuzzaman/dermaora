@@ -1,5 +1,6 @@
 import {
   BannerAdsPuck,
+  BannerImagesPuck,
   HeadingBlock,
   HeroSliderPuck,
   SpacerPuck,
@@ -12,5 +13,6 @@ export const config: Config = {
     SpacerPuck,
     HeroSliderPuck,
     BannerAdsPuck,
+    BannerImagesPuck,
   },
 };

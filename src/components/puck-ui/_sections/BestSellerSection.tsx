@@ -1,6 +1,7 @@
 "use client";
 
 import Container from "@/components/Container";
+import SectionHeader from "@/components/SectionHeader";
 import ProductShowSlider from "@/components/sliders/ProductShowSlider";
 import { useBestSellerQuery } from "@/hooks/useBestSellerQuery";
 
@@ -44,14 +45,11 @@ export default function BestSellerSection({
   return (
     <section className="bg-background">
       <Container>
-        {/* Add SectionHeader here when needed */}
-
-        {/* <SectionHeader
+        <SectionHeader
           title={title}
           link={buttonLink}
           buttonText={buttonText}
-        /> */}
-
+        />
         <ProductShowSlider data={items} />
       </Container>
     </section>

@@ -1,6 +1,6 @@
 import { Render } from "@puckeditor/core";
 import { notFound } from "next/navigation";
-import { config } from "@/puck/config";
+import { config } from "../../../config.puck";
 import { getPublishedPageBySlug } from "@/services/page.service";
 import { Suspense } from "react";
 

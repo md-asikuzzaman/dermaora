@@ -23,7 +23,7 @@ export async function GET() {
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { updatedAt: "desc" },
     });
 
     return NextResponse.json({

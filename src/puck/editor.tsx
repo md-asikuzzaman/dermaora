@@ -5,7 +5,7 @@ import { Puck } from "@puckeditor/core";
 import type { ComponentProps } from "react";
 import toast from "react-hot-toast";
 
-import { config } from "./config";
+import { config } from "../../config.puck";
 
 type PuckData = Parameters<
   NonNullable<ComponentProps<typeof Puck>["onPublish"]>

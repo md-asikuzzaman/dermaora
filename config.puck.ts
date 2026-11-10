@@ -2,6 +2,7 @@ import {
   BannerAdsPuck,
   BannerImagesPuck,
   BestSellerPuck,
+  FeaturedCategoryPuck,
   HeadingBlock,
   HeroSliderPuck,
   PopularBrandsPuck,
@@ -18,5 +19,6 @@ export const config: Config = {
     BannerImagesPuck,
     BestSellerPuck,
     PopularBrandsPuck,
+    FeaturedCategoryPuck,
   },
 };

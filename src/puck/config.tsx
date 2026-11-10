@@ -4,6 +4,7 @@ import {
   BestSellerPuck,
   HeadingBlock,
   HeroSliderPuck,
+  PopularBrandsPuck,
   SpacerPuck,
 } from "@/components/puck-ui";
 import type { Config } from "@puckeditor/core";
@@ -16,5 +17,6 @@ export const config: Config = {
     BannerAdsPuck,
     BannerImagesPuck,
     BestSellerPuck,
+    PopularBrandsPuck,
   },
 };

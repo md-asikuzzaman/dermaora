@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchBestSellers } from "@/services/best-sellter.service";
+import { fetchBestSellers } from "@/services/best-seller.service";
 import { useQuery } from "@tanstack/react-query";
 
 export const bestSellerKeys = {

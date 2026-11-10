@@ -114,7 +114,9 @@ model Brand {
   description String?
   logo        String?
   website     String?
-  isActive    Boolean @default(true)
+
+  isFeatured Boolean @default(false)
+  isActive   Boolean @default(true)
 
   products Product[]
 
@@ -128,7 +130,9 @@ model Category {
   slug        String  @unique
   description String?
   image       String?
-  isActive    Boolean @default(true)
+
+  isFeatured Boolean @default(false)
+  isActive   Boolean @default(true)
 
   parentId String?    @db.ObjectId
   parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)

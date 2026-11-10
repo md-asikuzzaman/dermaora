@@ -21,6 +21,7 @@ const brandBaseSchema = z.object({
 
   website: z.string().trim().nullable().optional(),
 
+  isFeatured: z.boolean().default(false),
   isActive: z.boolean().default(true),
 });
 

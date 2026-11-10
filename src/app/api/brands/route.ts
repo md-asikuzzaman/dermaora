@@ -44,16 +44,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, slug, description, logo, website } = validation.data;
+    const { ...rest } = validation.data;
 
     const brand = await prisma.brand.create({
-      data: {
-        name,
-        slug,
-        description: description || null,
-        logo: logo || null,
-        website: website || null,
-      },
+      data: { ...rest },
     });
 
     return NextResponse.json(

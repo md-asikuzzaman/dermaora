@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, slug, description, image, parentId } = validation.data;
+    const { parentId, ...rest } = validation.data;
 
     // Check parent category
     if (parentId) {
@@ -79,13 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     const category = await prisma.category.create({
-      data: {
-        name,
-        slug,
-        description: description || null,
-        image: image || null,
-        parentId: parentId || null,
-      },
+      data: rest,
     });
 
     return NextResponse.json(

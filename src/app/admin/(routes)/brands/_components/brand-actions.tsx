@@ -48,15 +48,12 @@ import {
   type UpdateBrandInput,
 } from "@/schema/brand.schema";
 import { GalleryImageField } from "@/components/gallery/gallery-image-field";
+import type { Brand } from "@prisma/client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 
 type BrandActionsProps = {
-  brand: {
-    id: string;
-    name: string;
-    slug: string;
-    logo: string | null;
-    isActive: boolean;
-  };
+  brand: Brand;
 };
 
 export function BrandActions({ brand }: BrandActionsProps) {
@@ -73,6 +70,8 @@ export function BrandActions({ brand }: BrandActionsProps) {
       slug: brand.slug,
       logo: brand.logo ?? "",
       isActive: brand.isActive,
+      isFeatured: brand.isFeatured,
+      description: brand.description ?? "",
     },
   });
 
@@ -155,6 +154,8 @@ export function BrandActions({ brand }: BrandActionsProps) {
         slug: brand.slug,
         logo: brand.logo ?? "",
         isActive: brand.isActive,
+        isFeatured: brand.isFeatured,
+        description: brand.description ?? "",
       });
     }
   };
@@ -223,6 +224,24 @@ export function BrandActions({ brand }: BrandActionsProps) {
                 </p>
               </div>
 
+              {/* Brand Description */}
+              <div className="grid gap-2">
+                <Label htmlFor={`description-${brand.id}`}>Description</Label>
+
+                <Textarea
+                  id={`description-${brand.id}`}
+                  placeholder="Enter brand description..."
+                  {...register("description")}
+                  disabled={isSubmitting}
+                />
+
+                {errors.description && (
+                  <p className="text-xs text-destructive">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
+
               {/* Brand Logo */}
               <Controller
                 control={control}
@@ -267,6 +286,30 @@ export function BrandActions({ brand }: BrandActionsProps) {
                     {errors.isActive.message}
                   </p>
                 )}
+              </div>
+
+              {/* Featured Brand */}
+              <div className="flex items-center gap-2">
+                <Controller
+                  control={control}
+                  name="isFeatured"
+                  render={({ field }) => (
+                    <Checkbox
+                      id={`isFeatured-${brand.id}`}
+                      checked={field.value ?? false}
+                      onCheckedChange={(checked) =>
+                        field.onChange(checked === true)
+                      }
+                      disabled={isSubmitting}
+                    />
+                  )}
+                />
+
+                <div className="grid gap-1">
+                  <Label htmlFor={`isFeatured-${brand.id}`}>
+                    Featured Brand
+                  </Label>
+                </div>
               </div>
             </div>
 

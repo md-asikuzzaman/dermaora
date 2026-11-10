@@ -23,7 +23,7 @@ export default function PopularBrandSlider({ items }: Props) {
   /** Animation slide settings */
   let limit = 3;
   if (width >= 640 && width < 1024) limit = 3;
-  if (width >= 1024) limit = 4;
+  if (width >= 1024) limit = 5;
 
   return (
     <div className="relative w-full">
@@ -34,7 +34,7 @@ export default function PopularBrandSlider({ items }: Props) {
         breakpoints={{
           640: { slidesPerView: 2.2, spaceBetween: 6 },
           768: { slidesPerView: 3, spaceBetween: 12 },
-          1024: { slidesPerView: 4, spaceBetween: 30 },
+          1024: { slidesPerView: 4.5, spaceBetween: 30 },
         }}
         autoplay={false}
         className="h-auto w-full"

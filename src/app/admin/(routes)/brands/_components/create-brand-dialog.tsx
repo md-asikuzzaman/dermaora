@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import toast from "react-hot-toast";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,9 +22,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { createBrand } from "@/services/brand.service";
-import { createBrandSchema } from "@/schema/brand.schema";
 import { GalleryImageField } from "@/components/gallery/gallery-image-field";
+import { Checkbox } from "@/components/ui/checkbox";
+import { createBrandSchema } from "@/schema/brand.schema";
+import { createBrand } from "@/services/brand.service";
+import { Textarea } from "@/components/ui/textarea";
 
 type BrandFormValues = z.input<typeof createBrandSchema>;
 type BrandPayload = z.output<typeof createBrandSchema>;
@@ -48,24 +50,15 @@ export function CreateBrandDialog() {
       description: "",
       logo: "",
       website: "",
+      isFeatured: false,
       isActive: true,
     },
   });
-
-  const handleLogoChange = (value: string | null) => {
-    setValue("logo", value ?? "", {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  };
 
   const onSubmit = async (values: BrandPayload) => {
     try {
       await createBrand({
         ...values,
-        description: values.description || null,
-        logo: values.logo || null,
-        website: values.website || null,
       });
 
       toast.success("Brand created successfully");
@@ -164,6 +157,24 @@ export function CreateBrandDialog() {
               </p>
             </div>
 
+            {/* Brand Description */}
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+
+              <Textarea
+                id="description"
+                placeholder="Enter brand description..."
+                {...register("description")}
+                disabled={isSubmitting}
+              />
+
+              {errors.description && (
+                <p className="text-xs text-destructive">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
+
             {/* Brand Logo */}
             <Controller
               control={control}
@@ -181,6 +192,28 @@ export function CreateBrandDialog() {
             {errors.logo && (
               <p className="text-xs text-destructive">{errors.logo.message}</p>
             )}
+
+            {/* Featured Brand */}
+            <div className="flex items-center gap-2">
+              <Controller
+                control={control}
+                name="isFeatured"
+                render={({ field }) => (
+                  <Checkbox
+                    id="isFeatured"
+                    checked={field.value ?? false}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked === true);
+                    }}
+                    disabled={isSubmitting}
+                  />
+                )}
+              />
+
+              <div className="grid gap-1">
+                <Label htmlFor="isFeatured">Featured Brand</Label>
+              </div>
+            </div>
           </div>
 
           <DialogFooter>

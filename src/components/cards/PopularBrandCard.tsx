@@ -7,7 +7,7 @@ import SafeImage from "../SafeImage";
 
 const PopularBrandCard = ({ name, logo, description, slug }: Brand) => {
   return (
-    <div className="bg-site-gray-50 group overflow-hidden rounded-[10px]">
+    <div className="bg-primary group overflow-hidden rounded-[10px]">
       {/* Responsive Optimized Image */}
       <div className="w-full overflow-clip">
         <SafeImage
@@ -23,14 +23,18 @@ const PopularBrandCard = ({ name, logo, description, slug }: Brand) => {
       {/* Content */}
       <div className="bg-site-gray-50 dark:bg-site-gray-100 flex items-end justify-between p-2 md:p-4">
         <div className="space-y-1">
-          <Heading level="h5" variant="semibold" className="line-clamp-1">
+          <Heading
+            level="h5"
+            variant="semibold"
+            className="line-clamp-1 text-white"
+          >
             {name || "Brand Name"}
           </Heading>
           {description && (
             <Body
               variant="b2"
               weight="medium"
-              className="text-site-gray-500! line-clamp-1"
+              className="text-white line-clamp-1"
             >
               {description}
             </Body>
@@ -38,12 +42,12 @@ const PopularBrandCard = ({ name, logo, description, slug }: Brand) => {
         </div>
 
         <Link
-          href={true ? `/brand/${slug}` : `${slug}`}
+          href={`/brands/${slug}` || "#"}
           aria-label={`Go to ${name}`}
           className="border-site-gray-200 dark:border-site-gray-400 hover:border-site-primary-500 dark:hover:border-site-primary-500 group/arrow flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] border transition-colors md:h-8.5 md:w-8.5"
         >
           <ArrowLeftIcon
-            className="group-hover/arrow:text-site-primary-500 h-5 w-5 rotate-145"
+            className="group-hover:text-white/90 text-white h-5 w-5 rotate-145"
             aria-hidden="true"
           />
         </Link>

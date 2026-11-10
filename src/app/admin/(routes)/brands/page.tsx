@@ -70,6 +70,11 @@ async function BrandRenderer() {
                       className="mr-2 inline-block h-10 w-10 rounded-md object-cover"
                     />
                     {brand.name}
+                    {brand.isFeatured && (
+                      <Badge variant="secondary" className="ml-2">
+                        Featured
+                      </Badge>
+                    )}
                   </TableCell>
 
                   <TableCell className="text-muted-foreground">
@@ -87,15 +92,7 @@ async function BrandRenderer() {
                   </TableCell>
 
                   <TableCell className="text-right">
-                    <BrandActions
-                      brand={{
-                        id: brand.id,
-                        name: brand.name,
-                        slug: brand.slug,
-                        isActive: brand.isActive,
-                        logo: brand.logo,
-                      }}
-                    />
+                    <BrandActions brand={brand} />
                   </TableCell>
                 </TableRow>
               ))

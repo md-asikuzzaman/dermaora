@@ -32,12 +32,14 @@ import {
 
 import { createCategory, getCategories } from "@/services/category.service";
 
-import {
-  CreateCategoryInput,
-  createCategorySchema,
-} from "@/schema/category.schema";
+import { createCategorySchema } from "@/schema/category.schema";
 import type { Category } from "@prisma/client";
 import { GalleryImageField } from "@/components/gallery/gallery-image-field";
+import { Checkbox } from "@/components/ui/checkbox";
+import z from "zod";
+
+type FormValues = z.input<typeof createCategorySchema>;
+type Payload = z.output<typeof createCategorySchema>;
 
 export function CreateCategoryDialog() {
   const router = useRouter();
@@ -52,14 +54,16 @@ export function CreateCategoryDialog() {
     reset,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<CreateCategoryInput>({
+  } = useForm<FormValues, unknown, Payload>({
     resolver: zodResolver(createCategorySchema),
     defaultValues: {
       name: "",
       slug: "",
-      description: null,
-      image: null,
+      description: "",
+      image: "",
       parentId: null,
+      isFeatured: false,
+      isActive: true,
     },
   });
 
@@ -81,7 +85,7 @@ export function CreateCategoryDialog() {
       .catch(() => toast.error("Failed to load categories"));
   }, [open]);
 
-  const onSubmit = async (values: CreateCategoryInput) => {
+  const onSubmit = async (values: Payload) => {
     try {
       await createCategory(values);
 
@@ -248,6 +252,28 @@ export function CreateCategoryDialog() {
                   {errors.parentId.message}
                 </p>
               )}
+            </div>
+
+            {/* Featured Category */}
+            <div className="flex items-center gap-2">
+              <Controller
+                control={control}
+                name="isFeatured"
+                render={({ field }) => (
+                  <Checkbox
+                    id="isFeatured"
+                    checked={field.value ?? false}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked === true);
+                    }}
+                    disabled={isSubmitting}
+                  />
+                )}
+              />
+
+              <div className="grid gap-1">
+                <Label htmlFor="isFeatured">Featured Category</Label>
+              </div>
             </div>
           </div>
 

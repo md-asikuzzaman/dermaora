@@ -1,10 +1,10 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
 import type { Category } from "@prisma/client";
@@ -50,11 +50,12 @@ import {
   updateCategory,
 } from "@/services/category.service";
 
+import { GalleryImageField } from "@/components/gallery/gallery-image-field";
 import {
   updateCategorySchema,
   type UpdateCategoryInput,
 } from "@/schema/category.schema";
-import { GalleryImageField } from "@/components/gallery/gallery-image-field";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type CategoryActionsProps = {
   category: Category;
@@ -76,6 +77,8 @@ export function CategoryActions({ category }: CategoryActionsProps) {
       description: category.description ?? "",
       image: category.image ?? "",
       parentId: category.parentId ?? null,
+      isActive: category.isActive,
+      isFeatured: category.isFeatured,
     },
   });
 
@@ -167,6 +170,8 @@ export function CategoryActions({ category }: CategoryActionsProps) {
         description: category.description ?? "",
         image: category.image ?? "",
         parentId: category.parentId ?? null,
+        isActive: category.isActive,
+        isFeatured: category.isFeatured,
       });
     }
   };
@@ -314,6 +319,30 @@ export function CategoryActions({ category }: CategoryActionsProps) {
                     {errors.parentId.message}
                   </p>
                 )}
+              </div>
+
+              {/* Featured Category */}
+              <div className="flex items-center gap-2">
+                <Controller
+                  control={control}
+                  name="isFeatured"
+                  render={({ field }) => (
+                    <Checkbox
+                      id={`isFeatured-${category.id}`}
+                      checked={field.value ?? false}
+                      onCheckedChange={(checked) =>
+                        field.onChange(checked === true)
+                      }
+                      disabled={isSubmitting}
+                    />
+                  )}
+                />
+
+                <div className="grid gap-1">
+                  <Label htmlFor={`isFeatured-${category.id}`}>
+                    Featured Category
+                  </Label>
+                </div>
               </div>
             </div>
 

@@ -24,6 +24,9 @@ const categoryBaseSchema = z.object({
     .regex(/^[a-f\d]{24}$/i, "Invalid parent category ID")
     .nullable()
     .optional(),
+
+  isFeatured: z.boolean().default(false),
+  isActive: z.boolean().default(true),
 });
 
 export const createCategorySchema = categoryBaseSchema;

@@ -3,7 +3,9 @@ import axios from "axios";
 
 export const fetchPopularBrands = async (): Promise<Brand[]> => {
   try {
-    const { data } = await axios.get<ApiResponse<Brand[]>>("/api/brands");
+    const { data } = await axios.get<ApiResponse<Brand[]>>(
+      "/api/brands/featured",
+    );
     return data.data ?? [];
   } catch (error) {
     if (axios.isAxiosError<ApiResponse<unknown>>(error)) {

@@ -3,7 +3,7 @@
 import "swiper/css";
 import "swiper/css/pagination";
 
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -22,7 +22,7 @@ export default function HeroSlider({ data: slides }: Props) {
         className="swiper-prev border-site-gray-100 absolute top-1/2 -left-5 z-20 hidden -translate-y-1/2 cursor-pointer rounded-full border bg-white p-2 transition md:block"
         aria-label="Previous slide"
       >
-        <ArrowRightIcon aria-hidden="true" />
+        <ArrowLeftIcon aria-hidden="true" />
       </button>
 
       {/* RIGHT ARROW */}

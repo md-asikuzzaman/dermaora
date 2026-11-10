@@ -78,17 +78,15 @@ export const BannerImagesPuck: ComponentConfig<Props> = {
             }}
           >
             {validBanners.map((banner, index) => (
-                
               <Link
                 key={`${banner.photo}-${index}`}
                 href={banner.url || "#"}
-                className="block w-full overflow-hidden rounded-md"
+                className="block w-full overflow-hidden rounded-sm md:rounded-md"
               >
                 <SafeImage
                   src={banner.photo}
                   width={1200}
                   height={500}
-                  sizes="(min-width: 768px) 25vw, (min-width: 640px) 50vw, 100vw"
                   alt={`Banner ${index + 1}`}
                   className="h-auto w-full object-cover transition-transform duration-500 hover:scale-[1.02]"
                 />

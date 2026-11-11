@@ -4,7 +4,7 @@ import { config } from "../../../config.puck";
 import { getPublishedPageBySlug } from "@/services/page.service";
 import { Suspense } from "react";
 
-export default async function Home() {
+export default async function HomePage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <HomePageRenderer />

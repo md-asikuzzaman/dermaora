@@ -27,7 +27,7 @@ type ProductsProps = {
 
 const PAGE_SIZE = 10;
 
-export default function Products({ searchParams }: ProductsProps) {
+export default function ProductsPage({ searchParams }: ProductsProps) {
   return (
     <Suspense fallback={<div>Loading products...</div>}>
       <ProductRenderer searchParams={searchParams} />

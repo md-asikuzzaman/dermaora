@@ -13,7 +13,7 @@ import { CreateCategoryDialog } from "./_components/create-category-dialog";
 import { CategoryActions } from "./_components/category-actions";
 import SafeImage from "@/components/SafeImage";
 
-export default function Categories() {
+export default function CategoriesPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <CategoryRenderer />

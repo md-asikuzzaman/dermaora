@@ -52,7 +52,7 @@ function GoogleIcon() {
   );
 }
 
-export default function SignUpForm() {
+export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");

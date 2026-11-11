@@ -15,7 +15,7 @@ import { BrandActions } from "./_components/brand-actions";
 import { getBrands } from "@/services/brand.service";
 import SafeImage from "@/components/SafeImage";
 
-export default function Brands() {
+export default function BrandsPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <BrandRenderer />

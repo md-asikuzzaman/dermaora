@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Search, Heart, ShoppingBag, UserRound, Menu, X } from "lucide-react";
 import { useState } from "react";
+import SafeImage from "../SafeImage";
 
 const Header = () => {
   const [search, setSearch] = useState("");
@@ -20,13 +21,14 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-8 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="shrink-0">
-          <span className="font-serif text-3xl font-semibold tracking-[0.12em] text-foreground">
-            DERMAORA
-          </span>
-          <span className="mt-0.5 block text-center text-[9px] tracking-[0.35em] text-muted-foreground">
-            SKINCARE & BEAUTY
-          </span>
+        <Link href="/" className="shrink-0 ">
+          <SafeImage
+            src="/images/logo.png"
+            alt="Dermaora Logo"
+            width={80}
+            height={80}
+            className="h-auto w-full"
+          />
         </Link>
 
         {/* Desktop Search */}

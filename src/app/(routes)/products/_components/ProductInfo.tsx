@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { Star } from "lucide-react";
-
-import ProductPrice from "./ProductPrice";
-import QuantitySelector from "./QuantitySelector";
+import { useState } from "react";
+import { ProductDetails } from "@/types/product-details.prisma";
 import ProductActions from "./ProductActions";
 import ProductBenefits from "./ProductBenefits";
-import { ProductDetails } from "./test";
+import ProductPrice from "./ProductPrice";
+import QuantitySelector from "./QuantitySelector";
 
 interface Props {
   product: ProductDetails;
@@ -29,7 +28,7 @@ const ProductInfo = ({ product }: Props) => {
   return (
     <div className="flex flex-col pt-2">
       <p className="text-sm font-medium uppercase tracking-[0.18em] text-[#718b76]">
-        {product.brand}
+        {product.brand.name}
       </p>
 
       <h1 className="mt-3 text-2xl font-semibold leading-tight text-[#26372e] md:text-4xl">
@@ -49,12 +48,12 @@ const ProductInfo = ({ product }: Props) => {
         </span>
 
         <span className="text-sm text-neutral-400">
-          ({product.reviews} Reviews)
+          ({product.reviews?.length ?? 0} Reviews)
         </span>
       </div>
 
       {/* Price */}
-      <ProductPrice price={product.price} oldPrice={product.oldPrice} />
+      <ProductPrice price={product.salePrice ?? 0} oldPrice={product.price} />
 
       <div className="my-7 h-px bg-neutral-200" />
 

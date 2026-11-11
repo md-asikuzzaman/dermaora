@@ -2,6 +2,7 @@ import {
   CreateProductInput,
   UpdateProductInput,
 } from "@/schema/product.schema";
+import { ProductDetails } from "@/types/product-details.prisma";
 import type { Product } from "@prisma/client";
 import { getBaseUrl, handleResponse } from "./api-utils";
 
@@ -29,6 +30,18 @@ export async function getProducts(
   }
 
   return result;
+}
+
+/** Get product by slug */
+export async function getProductBySlug(slug: string): Promise<ProductDetails> {
+  const response = await fetch(
+    `${getBaseUrl()}/api/products/slug/${encodeURIComponent(slug)}`,
+    {
+      cache: "no-store",
+    },
+  );
+
+  return handleResponse<ProductDetails>(response);
 }
 
 /** Create product */

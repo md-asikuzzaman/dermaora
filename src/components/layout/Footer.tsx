@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Mail, MapPin, Phone, Heart } from "lucide-react";
 
 import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
+import SafeImage from "../SafeImage";
 
 const Footer = () => {
   return (
@@ -46,13 +47,14 @@ const Footer = () => {
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-14 sm:px-6 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
         {/* Brand */}
         <div className="space-y-5">
-          <Link href="/" className="inline-block">
-            <span className="font-serif text-3xl font-semibold tracking-[0.12em] text-foreground">
-              DERMAORA
-            </span>
-            <span className="mt-1 block text-center text-[9px] tracking-[0.35em] text-muted-foreground">
-              SKINCARE & BEAUTY
-            </span>
+          <Link href="/" className="inline-block w-30 md:w-35 lg:w-45">
+            <SafeImage
+              src="/images/logo.png"
+              alt="Dermaora Logo"
+              width={800}
+              height={400}
+              className="w-full h-auto object-contain"
+            />
           </Link>
 
           <p className="max-w-xs text-sm leading-7 text-muted-foreground">
@@ -216,9 +218,9 @@ const Footer = () => {
       {/* Bottom Bar */}
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-center sm:px-6 md:flex-row lg:px-8">
-          {/* <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Dermaora. All rights reserved.
-          </p> */}
+          <p className="text-xs text-muted-foreground">
+            © 2026 Dermaora. All rights reserved.
+          </p>
 
           <div className="flex flex-wrap items-center justify-center gap-5 text-xs text-muted-foreground">
             <Link

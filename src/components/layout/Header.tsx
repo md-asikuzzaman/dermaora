@@ -21,13 +21,13 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-8 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="shrink-0 ">
+        <Link href="/" className="shrink-0 w-16 md:w-18 lg:w-20">
           <SafeImage
             src="/images/logo.png"
             alt="Dermaora Logo"
-            width={80}
-            height={80}
-            className="h-auto w-full"
+            width={400}
+            height={200}
+            className="w-full h-auto object-contain"
           />
         </Link>
 

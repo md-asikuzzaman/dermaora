@@ -1,10 +1,14 @@
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
+
 import { getProductBySlug } from "@/services/product.service";
+import { getReviewsBySlug } from "@/services/review.service";
+
 import ProductBreadcrumb from "../_components/ProductBreadcrumb";
 import ProductGallery from "../_components/ProductGallery";
 import ProductInfo from "../_components/ProductInfo";
 import ProductReviews from "../_components/ProductReviews";
 import ProductTabs from "../_components/ProductTabs";
-import { Suspense } from "react";
 
 interface Props {
   params: Promise<{
@@ -20,19 +24,29 @@ export default function ProductDetailsPage({ params }: Props) {
   );
 }
 
-export const ProductDetailsRenderer = async ({ params }: Props) => {
+async function ProductDetailsRenderer({ params }: Props) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+
+  let product;
+
+  try {
+    product = await getProductBySlug(slug);
+  } catch {
+    notFound();
+  }
 
   const discount =
-    product.salePrice && product.price > product.salePrice
-      ? Math.round(((product.salePrice - product.price) / product.price) * 100)
+    product.salePrice !== null && product.salePrice < product.price
+      ? Math.round(((product.price - product.salePrice) / product.price) * 100)
       : 0;
 
   return (
     <main className="min-h-screen bg-[#fcfbf8]">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:py-14">
-        <ProductBreadcrumb category={""} productName={product.name} />
+        <ProductBreadcrumb
+          category={product.category.name}
+          productName={product.name}
+        />
 
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           <ProductGallery
@@ -40,17 +54,20 @@ export const ProductDetailsRenderer = async ({ params }: Props) => {
             images={product.images}
             discount={discount}
           />
-
           <ProductInfo product={product} />
         </div>
 
-        {/* <ProductTabs product={product} /> */}
+        <ProductTabs product={product} />
 
-        {/* <ProductReviews
-          rating={product.rating}
-          totalReviews={product.reviews}
-        /> */}
+        <Suspense fallback={<p>Loading...</p>}>
+          <ProductReviewsRenderer slug={slug} />
+        </Suspense>
       </div>
     </main>
   );
-};
+}
+
+async function ProductReviewsRenderer({ slug }: { slug: string }) {
+  const reviews = await getReviewsBySlug(slug);
+  return <ProductReviews reviews={reviews} />;
+}

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Heart } from "lucide-react";
+import SafeImage from "@/components/SafeImage";
 
 interface Props {
   name: string;
@@ -41,19 +42,19 @@ const ProductGallery = ({ name, images, discount }: Props) => {
         </button>
       </div>
 
-      <div className="mt-4 grid grid-cols-4 gap-3">
+      <div className="mt-4 grid grid-cols-5 gap-3">
         {images.map((image, index) => (
           <button
             key={image}
             onClick={() => setSelectedImage(index)}
             aria-label={`View product image ${index + 1}`}
-            className={`relative aspect-square overflow-hidden rounded-xl bg-[#f1eee8] transition ${
+            className={`relative aspect-square overflow-hidden rounded-xl bg-[#f1eee8] transition cursor-pointer ${
               selectedImage === index
                 ? "ring-2 ring-[#315c49] ring-offset-2"
                 : "opacity-70 hover:opacity-100"
             }`}
           >
-            <Image
+            <SafeImage
               src={image}
               alt={`${name} ${index + 1}`}
               fill

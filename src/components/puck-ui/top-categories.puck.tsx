@@ -39,7 +39,7 @@ export const FeaturedCategoryPuck: ComponentConfig<Props> = {
   },
 
   defaultProps: {
-    title: "Explore Popular Categories",
+    title: "Top Categories",
     buttonText: "View All",
     buttonLink: "/categories",
     tips: "",

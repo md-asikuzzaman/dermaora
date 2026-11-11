@@ -41,7 +41,7 @@ export const PopularBrandsPuck: ComponentConfig<Props> = {
   defaultProps: {
     title: "Popular Brands",
     buttonText: "View All",
-    buttonLink: "/popular-brands",
+    buttonLink: "/brands",
     tips: "",
   },
 

@@ -27,7 +27,7 @@ const PopularCategoryCard = ({ name, image, slug }: Props) => {
       </div>
 
       {/* Category Name */}
-      <h3 className="mt-5 line-clamp-1 w-full px-2 text-center text-xl font-semibold tracking-tight text-[#15191F] transition-colors duration-300 group-hover:text-[#8A765D] sm:mt-6 sm:text-2xl">
+      <h3 className="mt-5 w-full text-center text-lg font-semibold tracking-tight text-[#15191F] transition-colors duration-300 group-hover:text-[#8A765D] sm:mt-6 sm:text-xl">
         {name}
       </h3>
     </Link>

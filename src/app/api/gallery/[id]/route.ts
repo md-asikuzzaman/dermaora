@@ -161,6 +161,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     // 7. Upload new image if provided
     if (image instanceof File) {
       const buffer = Buffer.from(await image.arrayBuffer());
+
       const uploadedImage = await uploadImage(buffer);
 
       uploadedPublicId = uploadedImage.public_id;

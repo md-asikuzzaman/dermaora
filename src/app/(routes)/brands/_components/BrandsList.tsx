@@ -1,8 +1,9 @@
 "use client";
 
-import { motion } from "motion/react";
-import { Brand } from "@prisma/client";
 import SafeImage from "@/components/SafeImage";
+import { Brand } from "@prisma/client";
+import { motion } from "motion/react";
+import Link from "next/link";
 
 interface BrandsListProps {
   brands: Brand[];
@@ -50,6 +51,7 @@ const BrandsList = ({ brands }: BrandsListProps) => {
           elevate your skincare routine.
         </p>
       </motion.div>
+
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -61,15 +63,19 @@ const BrandsList = ({ brands }: BrandsListProps) => {
             key={brand.id}
             variants={itemVariants}
             whileHover={{ y: -5, scale: 1.02 }}
-            className="group flex h-32 items-center justify-center overflow-hidden rounded-xl border border-border bg-white p-5 transition-all duration-300 hover:border-primary/30 hover:shadow-lg"
           >
-            <SafeImage
-              src={brand.logo as string}
-              alt={brand.name}
-              width={180}
-              height={100}
-              className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
-            />
+            <Link
+              href={`/brands/${brand.slug}`}
+              className="group flex h-32 items-center justify-center overflow-hidden rounded-xl border border-border bg-white p-5 transition-all duration-300 hover:border-primary/30 hover:shadow-lg"
+            >
+              <SafeImage
+                src={brand.logo as string}
+                alt={brand.name}
+                width={180}
+                height={100}
+                className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
+              />
+            </Link>
           </motion.div>
         ))}
       </motion.div>

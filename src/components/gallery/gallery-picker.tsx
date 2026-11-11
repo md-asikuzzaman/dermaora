@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
@@ -16,19 +14,21 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import toast from "react-hot-toast";
-import type { Gallery } from "@prisma/client";
 import {
   bulkDeleteGalleryImages,
   deleteGalleryImage,
   getGallery,
   uploadGalleryImage,
 } from "@/services/gallery.service";
+import type { Gallery } from "@prisma/client";
+import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 
 import {
   Dialog,
@@ -40,9 +40,8 @@ import {
 } from "@/components/ui/dialog";
 
 import type { GalleryPickerProps } from "./gallery-types";
-import image from "next/image";
 
-const LIMIT = 12;
+const LIMIT = 20;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 type ViewMode = "grid" | "list";
@@ -712,9 +711,9 @@ export function GalleryPicker({
                         >
                           <p
                             className="truncate text-sm font-medium"
-                            title={image.title || "Untitled"}
+                            title={image.publicId || "Untitled"}
                           >
-                            {image.title || "Untitled"}
+                            {image.publicId || "Untitled"}
                           </p>
 
                           <p className="truncate text-xs text-muted-foreground">
@@ -842,7 +841,7 @@ export function GalleryPicker({
             <>
               <DialogHeader>
                 <DialogTitle className="truncate">
-                  {preview.title || "Untitled image"}
+                  {preview.publicId || "Untitled image"}
                 </DialogTitle>
 
                 <DialogDescription>

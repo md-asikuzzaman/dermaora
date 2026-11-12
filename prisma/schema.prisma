@@ -224,8 +224,8 @@ model Order {
   paymentStatus PaymentStatus @default(UNPAID)
 
   // Stripe references
-  stripeSessionId       String? @unique
-  stripePaymentIntentId String? @unique
+  stripeSessionId       String? 
+  stripePaymentIntentId String?
 
   paidAt DateTime?
 

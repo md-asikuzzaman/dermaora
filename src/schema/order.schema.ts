@@ -30,3 +30,5 @@ export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export const trackOrderSchema = z.object({
   orderNumber: z.string().trim().min(1, "Order number is required"),
 });
+
+export type TrackOrderInput = z.infer<typeof trackOrderSchema>;

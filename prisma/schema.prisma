@@ -207,14 +207,14 @@ model Review {
 // Order Schema
 // ===============================
 model Order {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  orderNumber String @unique @default(cuid())
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber     String          @unique @default(cuid())
   shippingAddress ShippingAddress
-  items OrderItem[]
-  subtotal    Float
-  deliveryFee Float @default(0)
-  discount    Float @default(0)
-  total       Float
+  items           OrderItem[]
+  subtotal        Float
+  deliveryFee     Float           @default(0)
+  discount        Float           @default(0)
+  total           Float
 
   // Currency
   currency String @default("BDT")
@@ -224,13 +224,19 @@ model Order {
   paymentStatus PaymentStatus @default(UNPAID)
 
   // Stripe references
-  stripeSessionId       String? 
+  stripeSessionId       String?
   stripePaymentIntentId String?
 
   paidAt DateTime?
 
   // Order management
   status OrderStatus @default(PENDING)
+
+  // Cancellation information
+  cancellationStatus      CancellationStatus @default(NONE)
+  cancellationReason      String?
+  cancellationRequestedAt DateTime?
+  cancellationReviewedAt  DateTime?
 
   adminNote String?
 
@@ -288,4 +294,11 @@ type OrderItem {
   salePrice Float?
   quantity  Int
   subtotal  Float
+}
+
+enum CancellationStatus {
+  NONE
+  REQUESTED
+  APPROVED
+  REJECTED
 }

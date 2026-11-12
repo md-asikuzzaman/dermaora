@@ -57,6 +57,12 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       paymentStatus: order.paymentStatus,
       paidAt: order.paidAt,
 
+      // Cancellation information
+      cancellationStatus: order.cancellationStatus,
+      cancellationReason: order.cancellationReason,
+      cancellationRequestedAt: order.cancellationRequestedAt,
+      cancellationReviewedAt: order.cancellationReviewedAt,
+
       shippingAddress: {
         fullName: order.shippingAddress.fullName,
         phone: order.shippingAddress.phone,

@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/** Create Order Schema */
 export const createOrderSchema = z.object({
   paymentMethod: z.enum(["COD", "STRIPE"]),
 
@@ -27,8 +28,22 @@ export const createOrderSchema = z.object({
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 
+/** Track Order Schema */
 export const trackOrderSchema = z.object({
   orderNumber: z.string().trim().min(1, "Order number is required"),
 });
 
 export type TrackOrderInput = z.infer<typeof trackOrderSchema>;
+
+/** Cancel Order Schema */
+export const cancelOrderSchema = z.object({
+  phone: z.string().trim().min(10, "Valid phone number is required"),
+
+  reason: z
+    .string()
+    .trim()
+    .min(5, "Cancellation reason must be at least 5 characters")
+    .max(500, "Cancellation reason cannot exceed 500 characters"),
+});
+
+export type CancelOrderInput = z.infer<typeof cancelOrderSchema>;

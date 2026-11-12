@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search, Heart, ShoppingBag, UserRound, Menu, X } from "lucide-react";
 import { useState } from "react";
 import SafeImage from "../SafeImage";
+import Container from "../Container";
 
 const Header = () => {
   const [search, setSearch] = useState("");
@@ -19,7 +20,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-8 px-4 sm:px-6 lg:px-8">
+      <Container className="flex h-20 items-center justify-between gap-8 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="shrink-0 w-16 md:w-18 lg:w-20">
           <SafeImage
@@ -87,7 +88,7 @@ const Header = () => {
             {mobileMenu ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
-      </div>
+      </Container>
 
       {/* Mobile Search */}
       <div className="px-4 pb-4 md:hidden">

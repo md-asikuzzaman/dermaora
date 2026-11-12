@@ -47,3 +47,16 @@ export const cancelOrderSchema = z.object({
 });
 
 export type CancelOrderInput = z.infer<typeof cancelOrderSchema>;
+
+/** Review Cancellation Schema */
+export const reviewCancellationSchema = z.object({
+  action: z.enum(["APPROVE", "REJECT"]),
+
+  adminNote: z
+    .string()
+    .trim()
+    .max(1000, "Admin note cannot exceed 1000 characters")
+    .optional(),
+});
+
+export type ReviewCancellationInput = z.infer<typeof reviewCancellationSchema>;

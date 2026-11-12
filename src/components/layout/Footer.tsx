@@ -81,40 +81,6 @@ const BRAND_INFO = {
 const Footer = () => {
   return (
     <footer className="border-t border-border bg-background">
-      {/* Newsletter */}
-      <div className="border-b border-border bg-muted/30">
-        <Container className="flex flex-col items-center justify-between gap-6 px-4 py-12 sm:px-6 md:flex-row lg:px-8">
-          <div className="text-center md:text-left">
-            <h2 className="font-serif text-2xl font-semibold text-foreground sm:text-3xl">
-              A Little Glow in Your Inbox
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Subscribe for skincare tips, exclusive offers, and new arrivals.
-            </p>
-          </div>
-
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex w-full max-w-md items-center gap-2 rounded-full border border-input bg-background p-1.5"
-          >
-            <Mail className="ml-3 size-5 shrink-0 text-muted-foreground" />
-            <input
-              type="email"
-              required
-              placeholder="Enter your email address"
-              className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
-            />
-            <button
-              type="submit"
-              aria-label="Subscribe"
-              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              <ArrowRight size={18} />
-            </button>
-          </form>
-        </Container>
-      </div>
-
       {/* Main Footer */}
       <Container className="grid grid-cols-1 gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
         {/* Brand */}

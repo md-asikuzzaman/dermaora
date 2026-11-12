@@ -69,7 +69,7 @@ const Header = () => {
             aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
             className="relative flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
-            <Heart size={21} strokeWidth={1.8} />
+            <Heart size={24} strokeWidth={1.6} />
 
             {wishlistHydrated && wishlistCount > 0 && (
               <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-medium text-primary-foreground">
@@ -85,7 +85,7 @@ const Header = () => {
             aria-label="Open shopping cart"
             className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
-            <ShoppingCart size={21} strokeWidth={1.8} />
+            <ShoppingCart size={24} strokeWidth={1.6} />
 
             {cartHydrated && cartCount > 0 && (
               <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-medium text-primary-foreground">

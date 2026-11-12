@@ -7,7 +7,7 @@ interface Props extends React.ComponentProps<"div"> {
 
 const Container = ({ children, className, ...args }: Props) => {
   return (
-    <div className={cn("mx-auto max-w-7xl px-4 md:px-5", className)} {...args}>
+    <div className={cn("container mx-auto px-2 md:px-4", className)} {...args}>
       {children}
     </div>
   );

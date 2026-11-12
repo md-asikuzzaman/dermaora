@@ -50,7 +50,15 @@ async function ProductDetailsRenderer({ params }: Props) {
 
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           <ProductGallery
-            name={product.name}
+            product={{
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              price: product.price,
+              salePrice: product.salePrice,
+              thumbnail: product.thumbnail,
+              rating: product.rating,
+            }}
             images={product.images}
             discount={discount}
           />

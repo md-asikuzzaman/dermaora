@@ -1,33 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Heart, ShoppingBag, UserRound, Menu, X } from "lucide-react";
+import { Search, Heart, UserRound, Menu, X, ShoppingCart } from "lucide-react";
 import { useState } from "react";
+
 import SafeImage from "../SafeImage";
+import Container from "../Container";
+import CartDrawer from "../CartDrawer";
+
+import { selectCartCount, useCartStore } from "@/stores/cart.store";
+import { useWishlistStore } from "@/stores/wishlist.store";
 
 const Header = () => {
   const [search, setSearch] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
 
+  const openCart = useCartStore((state) => state.openCart);
+  const cartCount = useCartStore(selectCartCount);
+  const cartHydrated = useCartStore((state) => state.hasHydrated);
+
+  const wishlistCount = useWishlistStore((state) => state.items.length);
+  const wishlistHydrated = useWishlistStore((state) => state.hasHydrated);
+
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (search.trim()) {
-      window.location.href = `/products?search=${encodeURIComponent(search.trim())}`;
-    }
+    // if (search.trim()) {
+    //   window.location.href = `/products?search=${encodeURIComponent(search.trim())}`;
+    // }
   };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-8 px-4 sm:px-6 lg:px-8">
+      <Container className="flex h-20 items-center justify-between gap-8 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="shrink-0 w-16 md:w-18 lg:w-20">
+        <Link href="/" className="w-16 shrink-0 md:w-18 lg:w-20">
           <SafeImage
             src="/images/logo.png"
             alt="Dermaora Logo"
             width={400}
             height={200}
-            className="w-full h-auto object-contain"
+            className="h-auto w-full object-contain"
           />
         </Link>
 
@@ -50,25 +63,38 @@ const Header = () => {
 
         {/* Right Actions */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+          {/* Wishlist */}
           <Link
             href="/wishlist"
-            aria-label="Wishlist"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-          >
-            <Heart size={21} strokeWidth={1.6} />
-          </Link>
-
-          <Link
-            href="/cart"
-            aria-label="Shopping cart"
+            aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ""}`}
             className="relative flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
-            <ShoppingBag size={21} strokeWidth={1.6} />
-            <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
-              0
-            </span>
+            <Heart size={24} strokeWidth={1.6} />
+
+            {wishlistHydrated && wishlistCount > 0 && (
+              <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-medium text-primary-foreground">
+                {wishlistCount > 99 ? "99+" : wishlistCount}
+              </span>
+            )}
           </Link>
 
+          {/* Cart */}
+          <button
+            type="button"
+            onClick={openCart}
+            aria-label="Open shopping cart"
+            className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <ShoppingCart size={24} strokeWidth={1.6} />
+
+            {cartHydrated && cartCount > 0 && (
+              <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-medium text-primary-foreground">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
+          </button>
+
+          {/* Login */}
           <Link
             href="/login"
             className="hidden h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:flex"
@@ -79,6 +105,7 @@ const Header = () => {
 
           {/* Mobile Menu */}
           <button
+            type="button"
             onClick={() => setMobileMenu(!mobileMenu)}
             aria-label="Toggle menu"
             aria-expanded={mobileMenu}
@@ -87,7 +114,7 @@ const Header = () => {
             {mobileMenu ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
-      </div>
+      </Container>
 
       {/* Mobile Search */}
       <div className="px-4 pb-4 md:hidden">
@@ -129,6 +156,9 @@ const Header = () => {
           </div>
         </nav>
       )}
+
+      {/* Global Cart Drawer */}
+      <CartDrawer />
     </header>
   );
 };

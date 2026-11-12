@@ -185,10 +185,10 @@ model Product {
 }
 
 model Review {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
   rating     Int
   comment    String?
-  isApproved Boolean  @default(false)
+  isApproved Boolean @default(false)
 
   productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id])
@@ -201,4 +201,104 @@ model Review {
 
   @@index([productId, isApproved])
   @@index([userId])
+}
+
+// ===============================
+// Order Schema
+// ===============================
+model Order {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber     String          @unique @default(cuid())
+  shippingAddress ShippingAddress
+  items           OrderItem[]
+  subtotal        Float
+  deliveryFee     Float           @default(0)
+  discount        Float           @default(0)
+  total           Float
+
+  // Currency
+  currency String @default("BDT")
+
+  // Payment information
+  paymentMethod PaymentMethod @default(COD)
+  paymentStatus PaymentStatus @default(UNPAID)
+
+  // Stripe references
+  stripeSessionId       String?
+  stripePaymentIntentId String?
+
+  paidAt DateTime?
+
+  // Order management
+  status OrderStatus @default(PENDING)
+
+  // Cancellation information
+  cancellationStatus      CancellationStatus @default(NONE)
+  cancellationReason      String?
+  cancellationRequestedAt DateTime?
+  cancellationReviewedAt  DateTime?
+
+  adminNote String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([paymentStatus])
+  @@index([shippingAddress.phone])
+  @@index([createdAt])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum PaymentMethod {
+  COD
+  STRIPE
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+type ShippingAddress {
+  fullName   String
+  phone      String
+  email      String?
+  address    String
+  city       String
+  district   String
+  postalCode String?
+  note       String?
+}
+
+type OrderItem {
+  productId String
+  name      String
+  slug      String
+  sku       String
+  thumbnail String?
+
+  price     Float
+  salePrice Float?
+  quantity  Int
+  subtotal  Float
+}
+
+enum CancellationStatus {
+  NONE
+  REQUESTED
+  APPROVED
+  REJECTED
 }

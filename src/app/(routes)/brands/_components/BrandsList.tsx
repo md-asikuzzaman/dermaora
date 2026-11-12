@@ -37,22 +37,6 @@ const BrandsList = ({ brands }: BrandsListProps) => {
   return (
     <div>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="mb-12 text-center"
-      >
-        <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">
-          Explore Our Brands
-        </h1>
-
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
-          Discover your favorite beauty brands and explore products curated to
-          elevate your skincare routine.
-        </p>
-      </motion.div>
-
-      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"

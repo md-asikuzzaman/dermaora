@@ -2,27 +2,54 @@
 
 import { Star } from "lucide-react";
 import { useState } from "react";
-import { ProductDetails } from "@/types/product-details.prisma";
+import { useRouter } from "next/navigation";
+
+import type { ProductDetails } from "@/types/product-details.prisma";
+
 import ProductActions from "./ProductActions";
 import ProductBenefits from "./ProductBenefits";
 import ProductPrice from "./ProductPrice";
 import QuantitySelector from "./QuantitySelector";
+
+import { useCartStore } from "@/stores/cart.store";
 
 interface Props {
   product: ProductDetails;
 }
 
 const ProductInfo = ({ product }: Props) => {
+  const router = useRouter();
+
+  const addItem = useCartStore((state) => state.addItem);
+  const openCart = useCartStore((state) => state.openCart);
+
   const [quantity, setQuantity] = useState(1);
 
   const isOutOfStock = product.stock <= 0;
 
+  const cartProduct = {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    sku: product.sku,
+    price: product.price,
+    salePrice: product.salePrice,
+    thumbnail: product.thumbnail,
+    stock: product.stock,
+  };
+
   const handleAddToCart = () => {
-    console.log("Add to cart:", product.id, quantity);
+    if (isOutOfStock) return;
+
+    addItem(cartProduct, quantity);
+    openCart();
   };
 
   const handleBuyNow = () => {
-    console.log("Buy now:", product.id, quantity);
+    if (isOutOfStock) return;
+
+    addItem(cartProduct, quantity);
+    router.push("/checkout");
   };
 
   return (
@@ -53,7 +80,10 @@ const ProductInfo = ({ product }: Props) => {
       </div>
 
       {/* Price */}
-      <ProductPrice price={product.salePrice ?? 0} oldPrice={product.price} />
+      <ProductPrice
+        price={product.salePrice ?? product.price}
+        oldPrice={product.price}
+      />
 
       <div className="my-7 h-px bg-neutral-200" />
 

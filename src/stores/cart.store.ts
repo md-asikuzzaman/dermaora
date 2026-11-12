@@ -1,10 +1,11 @@
-import { CartItem, CartProductInput } from "@/types/store.types";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type { CartItem, CartProductInput } from "@/types/store.types";
 
-interface CartStore {
+export interface CartStore {
   items: CartItem[];
   hasHydrated: boolean;
+  isOpen: boolean;
 
   addItem: (product: CartProductInput, quantity?: number) => void;
   removeItem: (productId: string) => void;
@@ -12,7 +13,15 @@ interface CartStore {
   clearCart: () => void;
 
   setHasHydrated: (value: boolean) => void;
+  openCart: () => void;
+  closeCart: () => void;
 }
+
+const normalizeQuantity = (quantity: number) => {
+  if (!Number.isFinite(quantity)) return 1;
+
+  return Math.max(1, Math.floor(quantity));
+};
 
 export const getProductPrice = (price: number, salePrice: number | null) => {
   return salePrice !== null && salePrice >= 0 && salePrice < price
@@ -25,17 +34,20 @@ export const useCartStore = create<CartStore>()(
     (set) => ({
       items: [],
       hasHydrated: false,
+      isOpen: false,
 
-      // Add product to cart
+      openCart: () => set({ isOpen: true }),
+      closeCart: () => set({ isOpen: false }),
+
       addItem: (product, quantity = 1) => {
         set((state) => {
           if (product.stock <= 0) return state;
 
+          const requestedQuantity = normalizeQuantity(quantity);
+
           const existingItem = state.items.find(
             (item) => item.id === product.id,
           );
-
-          const requestedQuantity = Math.max(1, Math.floor(quantity));
 
           if (existingItem) {
             return {
@@ -65,19 +77,17 @@ export const useCartStore = create<CartStore>()(
         });
       },
 
-      // Remove product
       removeItem: (productId) => {
         set((state) => ({
           items: state.items.filter((item) => item.id !== productId),
         }));
       },
 
-      // Update product quantity
       updateQuantity: (productId, quantity) => {
         set((state) => {
           const item = state.items.find((item) => item.id === productId);
 
-          if (!item) return state;
+          if (!item || !Number.isFinite(quantity)) return state;
 
           if (quantity <= 0 || item.stock <= 0) {
             return {
@@ -97,29 +107,18 @@ export const useCartStore = create<CartStore>()(
         });
       },
 
-      // Clear cart
-      clearCart: () => {
-        set({ items: [] });
-      },
+      clearCart: () => set({ items: [] }),
 
-      // Hydration
-      setHasHydrated: (value) => {
-        set({ hasHydrated: value });
-      },
+      setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
       name: "dermaora-cart",
       storage: createJSONStorage(() => localStorage),
       version: 1,
-
-      // Only persist cart items
       partialize: (state) => ({
         items: state.items,
       }),
-
-      // Manual hydration for Next.js
       skipHydration: true,
-
       onRehydrateStorage: () => (state, error) => {
         if (error) {
           console.error("Cart hydration failed:", error);
@@ -131,7 +130,6 @@ export const useCartStore = create<CartStore>()(
   ),
 );
 
-// Selectors
 export const selectCartCount = (state: CartStore) =>
   state.items.reduce((total, item) => total + item.quantity, 0);
 

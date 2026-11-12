@@ -60,3 +60,28 @@ export const reviewCancellationSchema = z.object({
 });
 
 export type ReviewCancellationInput = z.infer<typeof reviewCancellationSchema>;
+
+/** Order Status Schema */
+export const orderStatusSchema = z.enum([
+  "PENDING",
+  "CONFIRMED",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+  "CANCELLED",
+  "RETURNED",
+]);
+
+export const updateOrderStatusSchema = z.object({
+  status: orderStatusSchema,
+
+  adminNote: z
+    .string()
+    .trim()
+    .max(1000, "Admin note cannot exceed 1000 characters")
+    .optional(),
+});
+
+export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
+
+export type OrderStatusInput = z.infer<typeof orderStatusSchema>;

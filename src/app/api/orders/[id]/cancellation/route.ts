@@ -1,3 +1,4 @@
+import { isValidObjectId } from "@/lib/isObjectId";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/requireAdmin";
 import { reviewCancellationSchema } from "@/schema/order.schema";
@@ -19,7 +20,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const { id } = await params;
 
     // Validate order ID
-    if (!/^[a-f\d]{24}$/i.test(id)) {
+    if (!isValidObjectId(id)) {
       return NextResponse.json(
         {
           success: false,

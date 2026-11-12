@@ -2,6 +2,7 @@
 
 import { Star } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import type { ProductDetails } from "@/types/product-details.prisma";
 
@@ -17,6 +18,8 @@ interface Props {
 }
 
 const ProductInfo = ({ product }: Props) => {
+  const router = useRouter();
+
   const addItem = useCartStore((state) => state.addItem);
   const openCart = useCartStore((state) => state.openCart);
 
@@ -24,28 +27,29 @@ const ProductInfo = ({ product }: Props) => {
 
   const isOutOfStock = product.stock <= 0;
 
+  const cartProduct = {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    sku: product.sku,
+    price: product.price,
+    salePrice: product.salePrice,
+    thumbnail: product.thumbnail,
+    stock: product.stock,
+  };
+
   const handleAddToCart = () => {
     if (isOutOfStock) return;
 
-    addItem(
-      {
-        id: product.id,
-        name: product.name,
-        slug: product.slug,
-        sku: product.sku,
-        price: product.price,
-        salePrice: product.salePrice,
-        thumbnail: product.thumbnail,
-        stock: product.stock,
-      },
-      quantity,
-    );
-
+    addItem(cartProduct, quantity);
     openCart();
   };
 
   const handleBuyNow = () => {
-    // Implement checkout flow later.
+    if (isOutOfStock) return;
+
+    addItem(cartProduct, quantity);
+    router.push("/checkout");
   };
 
   return (

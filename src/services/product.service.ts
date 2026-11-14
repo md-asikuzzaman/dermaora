@@ -7,26 +7,65 @@ import type { Product } from "@prisma/client";
 import { getBaseUrl, handleResponse } from "./api-utils";
 
 /** Get all products */
-export async function getProducts(
-  page = 1,
-  limit = 2,
-): Promise<ApiResponse<Product[]>> {
-  const params = new URLSearchParams({
-    page: String(page),
-    limit: String(limit),
+export interface ProductFilterValues {
+  minPrice: number;
+  maxPrice: number;
+  brand: string[];
+  category: string[];
+  rating: string[];
+  sort: string;
+}
+
+/** Get all products */
+export async function getProducts(params: URLSearchParams) {
+  const query = new URLSearchParams();
+
+  // Pagination
+  query.set("page", params.get("page") || "1");
+  query.set("limit", params.get("limit") || "12");
+
+  // Search
+  const search = params.get("search");
+  if (search) query.set("search", search);
+
+  // Price range
+  const minPrice = params.get("minPrice");
+  const maxPrice = params.get("maxPrice");
+
+  if (minPrice) query.set("minPrice", minPrice);
+  if (maxPrice) query.set("maxPrice", maxPrice);
+
+  // Brand slugs
+  params.getAll("brand").forEach((slug) => {
+    query.append("brand", slug);
   });
 
-  const response = await fetch(
-    `${getBaseUrl()}/api/products?${params.toString()}`,
-    {
-      cache: "no-store",
-    },
-  );
+  // Category slugs
+  params.getAll("category").forEach((slug) => {
+    query.append("category", slug);
+  });
 
-  const result: ApiResponse<Product[]> = await response.json();
+  // Ratings
+  params.getAll("rating").forEach((rating) => {
+    query.append("rating", rating);
+  });
+
+  // Sorting
+  const sort = params.get("sort");
+  if (sort) query.set("sort", sort);
+
+  const url = `${getBaseUrl()}/api/products?${query.toString()}`;
+
+  console.log("Product API URL:", url);
+
+  const response = await fetch(url, {
+    cache: "no-store",
+  });
+
+  const result = await response.json();
 
   if (!response.ok || !result.success) {
-    throw new Error(result.message || "Something went wrong");
+    throw new Error(result.message || "Failed to fetch products");
   }
 
   return result;

@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
     const orderBy = sortOptions[sort] || sortOptions.newest;
 
     // Fetch products and total count
-    const [products, total] = await Promise.all([
+    const [products, total, priceRange] = await Promise.all([
       prisma.product.findMany({
         where,
         include: {
@@ -189,6 +189,19 @@ export async function GET(request: NextRequest) {
       }),
 
       prisma.product.count({ where }),
+
+      // Get global price range without applied price filters
+      prisma.product.aggregate({
+        where: {
+          isActive: true,
+        },
+        _min: {
+          price: true,
+        },
+        _max: {
+          price: true,
+        },
+      }),
     ]);
 
     return NextResponse.json({
@@ -200,6 +213,9 @@ export async function GET(request: NextRequest) {
         page,
         limit,
         totalPages: Math.ceil(total / limit),
+
+        minPrice: priceRange._min.price ?? 0,
+        maxPrice: priceRange._max.price ?? 0,
       },
     });
   } catch (error) {

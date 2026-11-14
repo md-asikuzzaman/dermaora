@@ -1,58 +1,169 @@
-import { isValidObjectId } from "@/lib/isObjectId";
 import { prisma } from "@/lib/prisma";
 import { createProductSchema } from "@/schema/product.schema";
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
-    const search = searchParams.get("search");
-    const brandId = searchParams.get("brandId");
-    const categoryId = searchParams.get("categoryId");
+    // Search
+    const search = searchParams.get("search")?.trim();
+
+    // Brand and category slugs (multiple values)
+    const brandSlugs = [
+      ...new Set(searchParams.getAll("brand").filter(Boolean)),
+    ];
+
+    const categorySlugs = [
+      ...new Set(searchParams.getAll("category").filter(Boolean)),
+    ];
+
+    // Boolean filters
     const isFeatured = searchParams.get("isFeatured");
     const isActive = searchParams.get("isActive");
 
+    // Price filters
+    const minPriceParam = searchParams.get("minPrice");
+    const maxPriceParam = searchParams.get("maxPrice");
+
+    const minPrice =
+      minPriceParam !== null && minPriceParam.trim() !== ""
+        ? Number(minPriceParam)
+        : undefined;
+
+    const maxPrice =
+      maxPriceParam !== null && maxPriceParam.trim() !== ""
+        ? Number(maxPriceParam)
+        : undefined;
+
+    // Rating filters
+    const ratings = [
+      ...new Set(
+        searchParams
+          .getAll("rating")
+          .map(Number)
+          .filter(
+            (rating) => Number.isInteger(rating) && rating >= 1 && rating <= 5,
+          ),
+      ),
+    ];
+
+    // Pagination
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
+
     const limit = Math.min(
       100,
-      Math.max(1, Number(searchParams.get("limit")) || 10),
+      Math.max(1, Number(searchParams.get("limit")) || 12),
     );
 
-    if (brandId && !isValidObjectId(brandId)) {
+    // Sorting
+    const sort = searchParams.get("sort") || "newest";
+
+    // Validate price range
+    if (
+      (minPrice !== undefined && !Number.isFinite(minPrice)) ||
+      (maxPrice !== undefined && !Number.isFinite(maxPrice))
+    ) {
       return NextResponse.json(
-        { success: false, message: "Invalid brand ID" },
+        {
+          success: false,
+          message: "Invalid price range",
+        },
         { status: 400 },
       );
     }
 
-    if (categoryId && !isValidObjectId(categoryId)) {
+    if (
+      minPrice !== undefined &&
+      maxPrice !== undefined &&
+      minPrice > maxPrice
+    ) {
       return NextResponse.json(
-        { success: false, message: "Invalid category ID" },
+        {
+          success: false,
+          message: "Minimum price cannot exceed maximum price",
+        },
         { status: 400 },
       );
     }
 
-    const where = {
+    // Build Prisma where conditions
+    const where: Prisma.ProductWhereInput = {
+      // Search
       ...(search && {
         OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
-          { sku: { contains: search } },
+          { name: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+          { sku: { contains: search, mode: "insensitive" } },
         ],
       }),
-      ...(brandId && { brandId }),
-      ...(categoryId && { categoryId }),
-      ...(isFeatured !== null &&
-        ["true", "false"].includes(isFeatured) && {
-          isFeatured: isFeatured === "true",
-        }),
-      ...(isActive !== null &&
-        ["true", "false"].includes(isActive) && {
-          isActive: isActive === "true",
-        }),
+
+      // Brand slug filter
+      ...(brandSlugs.length > 0 && {
+        brand: {
+          is: {
+            slug: {
+              in: brandSlugs,
+            },
+          },
+        },
+      }),
+
+      // Category slug filter
+      ...(categorySlugs.length > 0 && {
+        category: {
+          is: {
+            slug: {
+              in: categorySlugs,
+            },
+          },
+        },
+      }),
+
+      // Featured filter
+      ...(isFeatured === "true" || isFeatured === "false"
+        ? { isFeatured: isFeatured === "true" }
+        : {}),
+
+      // Active filter
+      ...(isActive === "true" || isActive === "false"
+        ? { isActive: isActive === "true" }
+        : {}),
+
+      // Price range
+      ...(minPrice !== undefined || maxPrice !== undefined
+        ? {
+            price: {
+              ...(minPrice !== undefined && { gte: minPrice }),
+              ...(maxPrice !== undefined && { lte: maxPrice }),
+            },
+          }
+        : {}),
+
+      // Rating filter
+      // Example: rating=4 means rating >= 4
+      ...(ratings.length > 0 && {
+        rating: {
+          gte: Math.min(...ratings),
+        },
+      }),
     };
 
+    // Sorting options
+    const sortOptions: Record<string, Prisma.ProductOrderByWithRelationInput> =
+      {
+        newest: { createdAt: "desc" },
+        oldest: { createdAt: "asc" },
+        "price-asc": { price: "asc" },
+        "price-desc": { price: "desc" },
+        rating: { rating: "desc" },
+        name: { name: "asc" },
+      };
+
+    const orderBy = sortOptions[sort] || sortOptions.newest;
+
+    // Fetch products and total count
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
@@ -72,7 +183,7 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy,
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -95,7 +206,10 @@ export async function GET(request: NextRequest) {
     console.error("Get products error:", error);
 
     return NextResponse.json(
-      { success: false, message: "Failed to fetch products" },
+      {
+        success: false,
+        message: "Failed to fetch products",
+      },
       { status: 500 },
     );
   }

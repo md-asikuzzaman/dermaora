@@ -1,18 +1,17 @@
 "use client";
 
+import { Heart, Menu, Search, ShoppingCart, UserRound, X } from "lucide-react";
 import Link from "next/link";
-import { Search, Heart, UserRound, Menu, X, ShoppingCart } from "lucide-react";
-import { useState } from "react";
-
-import SafeImage from "../SafeImage";
-import Container from "../Container";
-import CartDrawer from "../CartDrawer";
+import { Suspense, useState } from "react";
 
 import { selectCartCount, useCartStore } from "@/stores/cart.store";
 import { useWishlistStore } from "@/stores/wishlist.store";
+import CartDrawer from "../CartDrawer";
+import Container from "../Container";
+import SafeImage from "../SafeImage";
+import SearchBar from "./SearchBar";
 
 const Header = () => {
-  const [search, setSearch] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
 
   const openCart = useCartStore((state) => state.openCart);
@@ -21,14 +20,6 @@ const Header = () => {
 
   const wishlistCount = useWishlistStore((state) => state.items.length);
   const wishlistHydrated = useWishlistStore((state) => state.hasHydrated);
-
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // if (search.trim()) {
-    //   window.location.href = `/products?search=${encodeURIComponent(search.trim())}`;
-    // }
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
@@ -45,21 +36,9 @@ const Header = () => {
         </Link>
 
         {/* Desktop Search */}
-        <div className="hidden max-w-xl flex-1 md:block">
-          <form
-            onSubmit={handleSearch}
-            className="flex h-11 items-center rounded-full border border-input bg-muted/50 px-4 transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20"
-          >
-            <Search size={18} className="shrink-0 text-muted-foreground" />
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search for skincare, brands and more..."
-              className="w-full bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground"
-            />
-          </form>
-        </div>
+        <Suspense>
+          <SearchBar />
+        </Suspense>
 
         {/* Right Actions */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-4">
@@ -119,14 +98,14 @@ const Header = () => {
       {/* Mobile Search */}
       <div className="px-4 pb-4 md:hidden">
         <form
-          onSubmit={handleSearch}
+          // onSubmit={handleSearch}
           className="flex h-11 items-center rounded-full border border-input bg-muted/50 px-4 focus-within:border-ring"
         >
           <Search size={18} className="text-muted-foreground" />
           <input
             type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            // value={search}
+            // onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products..."
             className="w-full bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />

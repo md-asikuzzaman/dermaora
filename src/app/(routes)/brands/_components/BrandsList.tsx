@@ -49,7 +49,7 @@ const BrandsList = ({ brands }: BrandsListProps) => {
             whileHover={{ y: -5, scale: 1.02 }}
           >
             <Link
-              href={`/brands/${brand.slug}`}
+              href={`/products?brand=${brand.slug}`}
               className="group flex h-32 items-center justify-center overflow-hidden rounded-xl border border-border bg-white p-5 transition-all duration-300 hover:border-primary/30 hover:shadow-lg"
             >
               <SafeImage

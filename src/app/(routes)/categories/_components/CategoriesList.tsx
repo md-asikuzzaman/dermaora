@@ -49,7 +49,7 @@ const CategoriesList = ({ categories }: CategoriesListProps) => {
             whileHover={{ y: -5 }}
           >
             <Link
-              href={`/categories/${category.slug}`}
+              href={`/products?category=${category.slug}`}
               className="group relative block aspect-square overflow-hidden rounded-xl bg-muted"
             >
               <SafeImage

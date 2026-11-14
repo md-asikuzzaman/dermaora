@@ -7,5 +7,7 @@ interface ApiResponse<T> {
     page: number;
     limit: number;
     totalPages: number;
+    minPrice: number;
+    maxPrice: number;
   };
 }

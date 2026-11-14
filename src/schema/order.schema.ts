@@ -16,7 +16,13 @@ export const createOrderSchema = z.object({
 
   shippingAddress: z.object({
     fullName: z.string().trim().min(2, "Full name is required"),
-    phone: z.string().trim().min(10, "Valid phone number is required"),
+    phone: z
+      .string()
+      .trim()
+      .regex(
+        /^(?:\+8801|8801|01)[3-9]\d{8}$/,
+        "Enter a valid Bangladeshi phone number",
+      ),
     email: z.union([z.string().trim().email(), z.literal("")]).optional(),
     address: z.string().trim().min(5, "Address is required"),
     city: z.string().trim().min(2, "City is required"),
@@ -27,6 +33,12 @@ export const createOrderSchema = z.object({
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+
+export const checkoutFormSchema = createOrderSchema.omit({
+  items: true,
+});
+
+export type CheckoutFormInput = Omit<CreateOrderInput, "items">;
 
 /** Track Order Schema */
 export const trackOrderSchema = z.object({

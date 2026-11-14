@@ -1,10 +1,9 @@
 import { PackageSearch } from "lucide-react";
-
-import { ProductDetails } from "@/types/product-details.prisma";
 import ProductCard from "../ProductCard";
+import { Product } from "@prisma/client";
 
 interface ProductGridProps {
-  products: ProductDetails[];
+  products: Product[];
 }
 
 export default function ProductGrid({ products }: ProductGridProps) {

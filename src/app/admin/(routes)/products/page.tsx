@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -41,12 +40,17 @@ async function ProductRenderer({ searchParams }: ProductsProps) {
   // Validate page number
   const parsedPage = Number(params.page);
 
-  const requestedPage =
-    Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+
+  // Create API query parameters
+  const queryParams = new URLSearchParams({
+    page: String(page),
+    limit: String(PAGE_SIZE),
+  });
 
   // Fetch products, brands and categories
   const [result, brands, categories] = await Promise.all([
-    getProducts(requestedPage, PAGE_SIZE),
+    getProducts(queryParams),
     getBrands(),
     getCategories(),
   ]);
@@ -54,7 +58,7 @@ async function ProductRenderer({ searchParams }: ProductsProps) {
   // Extract products and metadata
   const { data: products, meta } = result;
 
-  const { total, page, limit, totalPages } = meta;
+  const { total, page: currentPage, limit, totalPages } = meta;
 
   // Create lookup maps
   const brandMap = new Map(brands.map(({ id, name }) => [id, name]));
@@ -73,8 +77,8 @@ async function ProductRenderer({ searchParams }: ProductsProps) {
   }));
 
   // Pagination information
-  const startItem = total === 0 ? 0 : (page - 1) * limit + 1;
-  const endItem = Math.min(page * limit, total);
+  const startItem = total === 0 ? 0 : (currentPage - 1) * limit + 1;
+  const endItem = Math.min(currentPage * limit, total);
 
   return (
     <div className="space-y-6">
@@ -203,7 +207,7 @@ async function ProductRenderer({ searchParams }: ProductsProps) {
           </p>
 
           {totalPages > 1 && (
-            <PaginationControls page={page} totalPages={totalPages} />
+            <PaginationControls page={currentPage} totalPages={totalPages} />
           )}
         </div>
       )}

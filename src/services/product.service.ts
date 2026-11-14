@@ -17,7 +17,7 @@ export interface ProductFilterValues {
 }
 
 /** Get all products */
-export async function getProducts(params: URLSearchParams) {
+export async function getProducts(params: URLSearchParams): Promise<ApiResponse<Product[]>> {
   const query = new URLSearchParams();
 
   // Pagination

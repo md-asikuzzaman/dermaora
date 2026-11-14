@@ -22,15 +22,19 @@ export default function ProductFilters({ minPrice, maxPrice }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Read current filter values from URL
   const price: [number, number] = [
-    Number(searchParams.get("minPrice") ?? minPrice),
-    Number(searchParams.get("maxPrice") ?? maxPrice),
+    searchParams.has("minPrice")
+      ? Number(searchParams.get("minPrice"))
+      : minPrice,
+    searchParams.has("maxPrice")
+      ? Number(searchParams.get("maxPrice"))
+      : maxPrice,
   ];
 
   const selectedBrands = searchParams.getAll("brand");
   const selectedCategories = searchParams.getAll("category");
   const rating = searchParams.get("rating") ?? "";
+  const search = searchParams.get("search") ?? "";
 
   // Update URL
   const updateURL = useCallback(
@@ -79,8 +83,8 @@ export default function ProductFilters({ minPrice, maxPrice }: Props) {
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
 
-    ["brand", "category", "minPrice", "maxPrice", "rating"].forEach((key) =>
-      params.delete(key),
+    ["brand", "category", "minPrice", "maxPrice", "rating", "search"].forEach(
+      (key) => params.delete(key),
     );
 
     params.set("page", "1");
@@ -94,6 +98,7 @@ export default function ProductFilters({ minPrice, maxPrice }: Props) {
     selectedBrands.length +
     selectedCategories.length +
     (rating ? 1 : 0) +
+    (search ? 1 : 0) +
     (price[0] > minPrice || price[1] < maxPrice ? 1 : 0);
 
   return (

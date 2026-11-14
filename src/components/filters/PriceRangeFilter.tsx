@@ -20,26 +20,18 @@ export default function PriceRangeFilter({
 }: PriceRangeFilterProps) {
   const [draftValue, setDraftValue] = useState<[number, number] | null>(null);
 
-  // Keep draft value until URL catches up
-  const isDraftSynced =
-    draftValue !== null &&
-    draftValue[0] === value[0] &&
-    draftValue[1] === value[1];
+  // Use local value while interacting, otherwise use URL value
+  const currentValue = draftValue ?? value;
 
-  // Prefer draft value during slider interaction and URL update
-  const currentValue =
-    draftValue !== null && !isDraftSynced ? draftValue : value;
-
-  // Slider movement: update local state only
+  // Slider movement: update local UI immediately
   const handleSliderChange = (values: number | readonly number[]) => {
-    if (!Array.isArray(values) || values.length < 2) return;
+    if (typeof values === "number" || values.length < 2) return;
 
     setDraftValue([values[0], values[1]]);
   };
 
-  // Slider release: update URL
   const handleSliderCommit = (values: number | readonly number[]) => {
-    if (!Array.isArray(values) || values.length < 2) return;
+    if (typeof values === "number" || values.length < 2) return;
 
     const nextValue: [number, number] = [values[0], values[1]];
 
@@ -89,7 +81,7 @@ export default function PriceRangeFilter({
       <Slider
         min={minPrice}
         max={maxPrice}
-        step={100}
+        step={1}
         value={currentValue}
         onValueChange={handleSliderChange}
         onValueCommitted={handleSliderCommit}
@@ -112,7 +104,7 @@ export default function PriceRangeFilter({
               min={minPrice}
               max={maxPrice}
               value={currentValue[0]}
-              onChange={(e) => updateMin(e.target.value)}
+              onChange={(event) => updateMin(event.target.value)}
               className="pl-7"
             />
           </div>
@@ -132,7 +124,7 @@ export default function PriceRangeFilter({
               min={minPrice}
               max={maxPrice}
               value={currentValue[1]}
-              onChange={(e) => updateMax(e.target.value)}
+              onChange={(event) => updateMax(event.target.value)}
               className="pl-7"
             />
           </div>
@@ -142,7 +134,6 @@ export default function PriceRangeFilter({
       {/* Selected Price Range */}
       <div className="flex justify-between text-xs text-muted-foreground">
         <span>৳{currentValue[0].toLocaleString("en-BD")}</span>
-
         <span>৳{currentValue[1].toLocaleString("en-BD")}</span>
       </div>
     </div>

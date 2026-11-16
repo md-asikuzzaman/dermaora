@@ -21,7 +21,7 @@ export const createOrderSchema = z.object({
       .trim()
       .regex(
         /^(?:\+8801|8801|01)[3-9]\d{8}$/,
-        "Enter a valid Bangladeshi phone number",
+        "Please enter a valid phone number",
       ),
     email: z.union([z.string().trim().email(), z.literal("")]).optional(),
     address: z.string().trim().min(5, "Address is required"),
@@ -49,7 +49,13 @@ export type TrackOrderInput = z.infer<typeof trackOrderSchema>;
 
 /** Cancel Order Schema */
 export const cancelOrderSchema = z.object({
-  phone: z.string().trim().min(10, "Valid phone number is required"),
+  phone: z
+    .string()
+    .trim()
+    .regex(
+      /^(?:\+8801|8801|01)[3-9]\d{8}$/,
+      "Please enter a valid phone number",
+    ),
 
   reason: z
     .string()

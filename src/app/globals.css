@@ -67,7 +67,7 @@
   --popover-foreground: oklch(0.265 0.018 145);
 
   /* Deep forest green */
-  --primary: oklch(0.375 0.055 150);
+  --primary: oklch(51.273% 0.16287 144.28);
   --primary-foreground: oklch(0.985 0.005 95);
 
   /* Soft sage */
@@ -173,4 +173,31 @@ button {
 
 button:disabled {
   @apply cursor-not-allowed opacity-50;
+}
+
+/* Swiper pagination */
+.swiper-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.swiper-pagination-bullet {
+  width: 7px;
+  height: 7px;
+  display: inline-block;
+  border-radius: 9999px;
+  background-color: #000 !important;
+  opacity: 1;
+  margin: 0 !important;
+  transition:
+    width 300ms ease,
+    background-color 300ms ease;
+}
+
+.swiper-pagination-bullet-active {
+  width: 24px !important;
+  background-color: #000 !important;
+  border-radius: 9px !important;
 }

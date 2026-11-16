@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import StoreHydration from "@/components/providers/StoreHydration";
+import { SessionProvider } from "next-auth/react";
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
@@ -19,8 +20,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${poppins.className} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <StoreHydration />
-        <Providers>{children}</Providers>
+        <SessionProvider>
+          <StoreHydration />
+          <Providers>{children}</Providers>
+        </SessionProvider>
       </body>
     </html>
   );

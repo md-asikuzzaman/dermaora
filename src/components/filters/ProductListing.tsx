@@ -1,9 +1,10 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import { SlidersHorizontal, Loader2 } from "lucide-react";
+import { Loader2, SlidersHorizontal } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -11,8 +12,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
-import { Button } from "@/components/ui/button";
 
 import ProductFilters from "@/components/filters/ProductFilters";
 import ProductToolbar from "./ProductToolbar";
@@ -23,8 +22,8 @@ import { getProducts } from "@/services/product.service";
 export default function ProductListing() {
   const searchParams = useSearchParams();
 
-  // Remove page from filters query.
-  // Pagination is managed by useInfiniteQuery.
+  // URL is the source of truth for filters
+  // Pagination is managed separately
   const params = new URLSearchParams(searchParams.toString());
   params.delete("page");
 
@@ -37,6 +36,7 @@ export default function ProductListing() {
     isFetching,
     isFetchingNextPage,
     isFetchNextPageError,
+    isPlaceholderData,
     hasNextPage,
     fetchNextPage,
     refetch,
@@ -47,7 +47,6 @@ export default function ProductListing() {
 
     queryFn: ({ pageParam }) => {
       const queryParams = new URLSearchParams(filterQueryString);
-
       queryParams.set("page", String(pageParam));
 
       return getProducts(queryParams);
@@ -55,36 +54,37 @@ export default function ProductListing() {
 
     getNextPageParam: (lastPage) => {
       const { page, totalPages } = lastPage.meta;
-
       return page < totalPages ? page + 1 : undefined;
     },
 
+    placeholderData: keepPreviousData,
     staleTime: 30 * 1000,
   });
 
-  // Combine products from all fetched pages.
+  // Combine products from all fetched pages
   const products = data?.pages.flatMap((page) => page.data) ?? [];
 
   const total = data?.pages[0]?.meta.total ?? 0;
 
-  const filters = (
-    <ProductFilters
-      minPrice={data?.pages[0]?.meta.minPrice ?? 0}
-      maxPrice={data?.pages[0]?.meta.maxPrice ?? 0}
-    />
-  );
+  // Keep previous price boundaries during filter refetch
+  const minPrice = data?.pages[0]?.meta.minPrice ?? 0;
+  const maxPrice = data?.pages[0]?.meta.maxPrice ?? 10000;
+
+  const isUpdating = isFetching && !isFetchingNextPage;
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[360px_minmax(0,1fr)]">
       {/* Desktop Filters */}
-      <aside className="hidden lg:block">{filters}</aside>
+      <aside className="hidden lg:block">
+        <ProductFilters minPrice={minPrice} maxPrice={maxPrice} />
+      </aside>
 
       <section className="min-w-0 space-y-6">
-        {/* Mobile Filter Button */}
+        {/* Mobile Filters */}
         <div className="flex justify-end lg:hidden">
           <Sheet>
             <SheetTrigger
-              render={<Button variant="outline" size="sm" className="gap-2" />}
+              render={<Button variant="outline" className="gap-2" />}
             >
               <SlidersHorizontal className="size-4" />
               Filters
@@ -98,19 +98,23 @@ export default function ProductListing() {
                 <SheetTitle>Product Filters</SheetTitle>
               </SheetHeader>
 
-              <div className="mt-6">{filters}</div>
+              <div className="mt-6">
+                <ProductFilters minPrice={minPrice} maxPrice={maxPrice} />
+              </div>
             </SheetContent>
           </Sheet>
         </div>
 
+        {/* Toolbar */}
         <ProductToolbar total={total} isFetching={isFetching} />
 
+        {/* Initial Loading */}
         {isPending ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">
-            Loading products...
+          <div className="flex min-h-60 items-center justify-center">
+            <Loader2 className="size-6 animate-spin text-muted-foreground" />
           </div>
-        ) : isError && products.length === 0 ? (
-          <div className="space-y-3 py-16 text-center">
+        ) : isError && !data ? (
+          <div className="flex min-h-60 flex-col items-center justify-center gap-4">
             <p className="text-sm text-destructive">Failed to load products.</p>
 
             <Button variant="outline" onClick={() => refetch()}>
@@ -121,9 +125,10 @@ export default function ProductListing() {
           <>
             {/* Products */}
             <div className="relative">
-              {isFetching && !isFetchingNextPage && (
+              {isUpdating && (
                 <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2">
-                  <div className="rounded-full border bg-background px-3 py-1.5 text-xs shadow-sm">
+                  <div className="flex items-center gap-2 rounded-full border bg-background px-3 py-1.5 text-xs shadow-sm">
+                    <Loader2 className="size-3 animate-spin" />
                     Updating products...
                   </div>
                 </div>
@@ -131,9 +136,7 @@ export default function ProductListing() {
 
               <div
                 className={`transition-opacity duration-200 ${
-                  isFetching && !isFetchingNextPage
-                    ? "opacity-50"
-                    : "opacity-100"
+                  isUpdating ? "opacity-50" : "opacity-100"
                 }`}
               >
                 <ProductGrid products={products} />
@@ -152,7 +155,7 @@ export default function ProductListing() {
                 <Button
                   variant="outline"
                   size="lg"
-                  disabled={isFetchingNextPage}
+                  disabled={isFetchingNextPage || isPlaceholderData}
                   onClick={() => fetchNextPage()}
                   className="min-w-40 gap-2"
                 >

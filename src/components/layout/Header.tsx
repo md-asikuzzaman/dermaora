@@ -13,6 +13,7 @@ import SearchBar from "./SearchBar";
 
 const Header = () => {
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const openCart = useCartStore((state) => state.openCart);
   const cartCount = useCartStore(selectCartCount);
@@ -37,11 +38,28 @@ const Header = () => {
 
         {/* Desktop Search */}
         <Suspense>
-          <SearchBar />
+          <SearchBar
+            mobileOpen={mobileSearchOpen}
+            onMobileClose={() => setMobileSearchOpen(false)}
+          />
         </Suspense>
 
         {/* Right Actions */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+          {/* Mobile Search Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileSearchOpen((prev) => !prev);
+              setMobileMenu(false);
+            }}
+            aria-label={mobileSearchOpen ? "Close search" : "Open search"}
+            aria-expanded={mobileSearchOpen}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground md:hidden"
+          >
+            {mobileSearchOpen ? <X size={22} /> : <Search size={22} />}
+          </button>
+
           {/* Wishlist */}
           <Link
             href="/wishlist"
@@ -85,7 +103,10 @@ const Header = () => {
           {/* Mobile Menu */}
           <button
             type="button"
-            onClick={() => setMobileMenu(!mobileMenu)}
+            onClick={() => {
+              setMobileMenu((prev) => !prev);
+              setMobileSearchOpen(false);
+            }}
             aria-label="Toggle menu"
             aria-expanded={mobileMenu}
             className="flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent hover:text-accent-foreground md:hidden"
@@ -94,23 +115,6 @@ const Header = () => {
           </button>
         </div>
       </Container>
-
-      {/* Mobile Search */}
-      <div className="px-4 pb-4 md:hidden">
-        <form
-          // onSubmit={handleSearch}
-          className="flex h-11 items-center rounded-full border border-input bg-muted/50 px-4 focus-within:border-ring"
-        >
-          <Search size={18} className="text-muted-foreground" />
-          <input
-            type="search"
-            // value={search}
-            // onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search products..."
-            className="w-full bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground"
-          />
-        </form>
-      </div>
 
       {/* Mobile Navigation */}
       {mobileMenu && (

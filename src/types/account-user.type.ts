@@ -3,6 +3,7 @@ export interface AccountUserType {
     id: string;
     name: string | null;
     email: string;
+    phone: string | null;
     image: string | null;
     role: "USER" | "ADMIN";
     createdAt: string;
@@ -17,5 +18,24 @@ export interface AccountUserType {
     delivered: number;
     cancelled: number;
     returned: number;
+  };
+}
+
+export interface UpdateAccountInput {
+  name: string;
+  phone: string;
+}
+
+export interface AccountApiResponse {
+  success: boolean;
+  message: string;
+  data: AccountUserType;
+}
+
+export interface UpdateAccountApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: AccountUserType["user"];
   };
 }

@@ -1,11 +1,13 @@
 "use client";
 
 import { Heart, Menu, Search, ShoppingCart, UserRound, X } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Suspense, useState } from "react";
 
 import { selectCartCount, useCartStore } from "@/stores/cart.store";
 import { useWishlistStore } from "@/stores/wishlist.store";
+
 import CartDrawer from "../CartDrawer";
 import Container from "../Container";
 import SafeImage from "../SafeImage";
@@ -15,12 +17,31 @@ const Header = () => {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
+  const isSessionLoading = status === "loading";
+
   const openCart = useCartStore((state) => state.openCart);
   const cartCount = useCartStore(selectCartCount);
   const cartHydrated = useCartStore((state) => state.hasHydrated);
 
   const wishlistCount = useWishlistStore((state) => state.items.length);
   const wishlistHydrated = useWishlistStore((state) => state.hasHydrated);
+
+  const accountHref = "/profile";
+  const authHref = isAuthenticated ? accountHref : "/signin";
+  const authLabel = isAuthenticated ? "Account" : "Login";
+
+  const mobileNavItems = [
+    { href: "/", label: "Home" },
+    { href: "/products", label: "Shop All" },
+    { href: "/wishlist", label: "Wishlist" },
+    { href: "/cart", label: "Shopping Cart" },
+    {
+      href: authHref,
+      label: isAuthenticated ? "My Account" : "Login / Account",
+    },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
@@ -91,14 +112,18 @@ const Header = () => {
             )}
           </button>
 
-          {/* Login */}
-          <Link
-            href="/login"
-            className="hidden h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:flex"
-          >
-            <UserRound size={16} />
-            Login
-          </Link>
+          {/* Dynamic Login / Account */}
+          {isSessionLoading ? (
+            <div className="hidden h-10 w-24 animate-pulse rounded-full bg-muted sm:block" />
+          ) : (
+            <Link
+              href={authHref}
+              className="hidden h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:flex"
+            >
+              <UserRound size={16} />
+              {authLabel}
+            </Link>
+          )}
 
           {/* Mobile Menu */}
           <button
@@ -120,13 +145,7 @@ const Header = () => {
       {mobileMenu && (
         <nav className="border-t border-border bg-background px-5 py-4 md:hidden">
           <div className="flex flex-col gap-4 text-sm text-foreground">
-            {[
-              { href: "/", label: "Home" },
-              { href: "/products", label: "Shop All" },
-              { href: "/wishlist", label: "Wishlist" },
-              { href: "/cart", label: "Shopping Cart" },
-              { href: "/login", label: "Login / Account" },
-            ].map((item) => (
+            {mobileNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

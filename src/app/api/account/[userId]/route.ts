@@ -11,20 +11,20 @@ interface RouteContext {
 
 export async function GET(_request: NextRequest, { params }: RouteContext) {
   try {
-    // 1. Authenticate user
-    // const session = await auth();
+    //  Check if the user is authenticated
+    const session = await auth();
 
-    // if (!session?.user?.email) {
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       message: "Unauthorized. Please login first.",
-    //     },
-    //     { status: 401 },
-    //   );
-    // }
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unauthorized. Please login first.",
+        },
+        { status: 401 },
+      );
+    }
 
-    // 2. Get user ID from URL
+    // Get user ID from URL
     const { userId } = await params;
 
     if (!isValidObjectId(userId)) {
@@ -37,7 +37,7 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    // 3. Find user
+    // Find user
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -61,18 +61,18 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    // 4. Ensure the requested account belongs to the logged-in user
-    // if (user.email.toLowerCase() !== session.user.email.toLowerCase()) {
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       message: "You are not authorized to access this account.",
-    //     },
-    //     { status: 403 },
-    //   );
-    // }
+    // Check if the authenticated user
+    if (user.email.toLowerCase() !== session.user.email.toLowerCase()) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "You are not authorized to access this account.",
+        },
+        { status: 403 },
+      );
+    }
 
-    // 5. Find orders using shipping email
+    // Find orders using shipping email
     const orders = await prisma.order.findMany({
       where: {
         shippingAddress: {
@@ -86,7 +86,7 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
       },
     });
 
-    // 6. Calculate order summary
+    // Calculate order summary
     const orderSummary: Record<string, number> = {
       total: orders.length,
       pending: 0,
@@ -106,7 +106,7 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
       }
     });
 
-    // 7. Return account information
+    // Return account information
     return NextResponse.json({
       success: true,
       message: "Account information fetched successfully.",
@@ -116,7 +116,7 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
       },
     });
   } catch (error) {
-    console.error("[ACCOUNT_GET]", error);
+    console.error(error);
 
     return NextResponse.json(
       {
@@ -130,20 +130,19 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
 
 export async function PATCH(request: NextRequest, { params }: RouteContext) {
   try {
-    // 1. Authentication
-    // const session = await auth();
+    // Check if the user is authenticated
+    const session = await auth();
 
-    // if (!session?.user?.email) {
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       message: "Unauthorized. Please login first.",
-    //     },
-    //     { status: 401 },
-    //   );
-    // }
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Unauthorized. Please login first.",
+        },
+        { status: 401 },
+      );
+    }
 
-    // 2. Get user ID
     const { userId } = await params;
 
     if (!isValidObjectId(userId)) {
@@ -156,7 +155,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    // 3. Find authenticated user
+    // Find authenticated user
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -175,17 +174,17 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       );
     }
 
-    // if (existingUser.email.toLowerCase() !== session.user.email.toLowerCase()) {
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       message: "You are not authorized to update this account.",
-    //     },
-    //     { status: 403 },
-    //   );
-    // }
+    if (existingUser.email.toLowerCase() !== session.user.email.toLowerCase()) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "You are not authorized to update this account.",
+        },
+        { status: 403 },
+      );
+    }
 
-    // 4. Validate request body
+    // Validate request body
     const body: unknown = await request.json();
     const parsed = updateAccountSchema.safeParse(body);
 
@@ -203,7 +202,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const { name, phone } = parsed.data;
     const normalizedPhone = phone || null;
 
-    // 5. Check duplicate phone number
+    // Check duplicate phone number
     if (normalizedPhone) {
       const phoneExists = await prisma.user.findFirst({
         where: {
@@ -224,7 +223,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       }
     }
 
-    // 6. Update user
+    // Update user
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
@@ -242,7 +241,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       },
     });
 
-    // 7. Success response
+    // Success response
     return NextResponse.json({
       success: true,
       message: "Profile updated successfully.",

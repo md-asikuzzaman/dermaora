@@ -1,11 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff, Loader2, ShoppingBag } from "lucide-react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
-import { Eye, EyeOff, Loader2, ShoppingBag } from "lucide-react";
 
 import { signInSchema, type SignInInput } from "@/schema/auth.schema";
 
@@ -16,7 +16,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,6 +25,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 
@@ -59,7 +59,20 @@ export default function SignInPage() {
         return;
       }
 
-      router.replace("/admin");
+      const response = await fetch("/api/auth/session");
+
+      if (!response.ok) {
+        setError("Unable to retrieve your session.");
+        return;
+      }
+
+      const session = await response.json();
+
+      const redirectPath =
+        session?.user?.role === "ADMIN" ? "/admin" : "/profile";
+
+      router.replace(redirectPath);
+      router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
     }

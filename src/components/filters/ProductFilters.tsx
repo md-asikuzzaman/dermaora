@@ -136,6 +136,7 @@ export default function ProductFilters({ minPrice, maxPrice }: Props) {
         <h3 className="text-sm font-semibold">Price Range</h3>
 
         <PriceRangeFilter
+          key={`${price[0]}-${price[1]}`}
           value={price}
           onChange={handlePriceChange}
           minPrice={minPrice}

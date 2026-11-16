@@ -36,7 +36,7 @@ export default function ProductListing() {
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
       <ProductFilters
         minPrice={data?.meta.minPrice ?? 0}
-        maxPrice={data?.meta.maxPrice ?? 10000}
+        maxPrice={data?.meta.maxPrice ?? 0}
       />
 
       <section className="min-w-0 space-y-6">

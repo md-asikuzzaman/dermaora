@@ -7,7 +7,7 @@ interface Props {
   children: ReactNode;
 }
 
-export default function UserLayout({ children }: Props) {
+export default async function UserLayout({ children }: Props) {
   return (
     <main className="min-h-screen bg-[#faf9f6]">
       <Container className="py-6 pb-16 sm:px-6 lg:py-12 lg:pb-12">

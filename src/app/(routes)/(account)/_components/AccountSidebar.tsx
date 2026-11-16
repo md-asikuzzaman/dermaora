@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { signOut, useSession } from "next-auth/react";
 
 const navigation = [
   { label: "My Profile", href: "/profile", icon: UserRound },
@@ -25,6 +26,18 @@ const navigation = [
 
 export default function AccountSidebar() {
   const pathname = usePathname();
+
+  const { data: session } = useSession();
+
+  console.log(session?.user.id);
+
+
+
+  
+
+
+
+
 
   return (
     <aside className="hidden h-fit rounded-2xl border bg-white p-5 shadow-sm lg:block">
@@ -76,6 +89,7 @@ export default function AccountSidebar() {
       <button
         type="button"
         className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/5 hover:text-destructive"
+        onClick={() => signOut({ callbackUrl: "/sigin" })}
       >
         <LogOut className="size-4" />
         Sign Out

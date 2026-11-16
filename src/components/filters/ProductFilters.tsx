@@ -173,8 +173,6 @@ export default function ProductFilters({ minPrice, maxPrice }: Props) {
 
         <RatingFilter value={rating} onChange={handleRatingChange} />
       </section>
-
-      <Separator />
     </aside>
   );
 }
